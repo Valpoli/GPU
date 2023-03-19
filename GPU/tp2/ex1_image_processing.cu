@@ -24,12 +24,12 @@ void process(int N, int M, int C, int pitch, float* img)
     if (i < M && j < N) {
         float* pixel = get_ptr(img,i,j,C,pitch);
         float newColor = 0;
-        for (k=0; k<C; k=+1)
+        for (int k=0; k<C; k=+1)
         {
             newColor += pixel[k];
         }
         newColor =  newColor/C
-        for (k=0; k<C; k=+1)
+        for (int k=0; k<C; k=+1)
         {
             pixel[k] = newColor;
         }
@@ -52,7 +52,7 @@ int main(int argc, char const *argv[])
     size_t pitch; // combien dois faire l'alignement ?
 
     float* cpy;
-    cudaMallocPitch(cpy, &pitch, N * sizeof(float), M);
+    cudaMallocPitch(&cpy, &pitch, N * sizeof(float), M);
     cudaMemcpy2D(cpy, pitch, img, N * sizeof(float), N * sizeof(float), M, cudaMemcpyHostToDevice);
 
     // launch kernel
