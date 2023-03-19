@@ -12,7 +12,7 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
 
 template <typename T>
 __device__ inline T* get_ptr(T *img, int i, int j, int C, size_t pitch) {
-	return img[j*pitch + i - (j*pitch + i)%C];
+    return reinterpret_cast<T*>(reinterpret_cast<char*>(img) + (j*pitch + i - (j*pitch + i)%C) * sizeof(T));
 }
 
 
@@ -28,7 +28,7 @@ void process(int N, int M, int C, int pitch, float* img)
         {
             newColor += pixel[k];
         }
-        newColor =  newColor/C
+        newColor =  newColor/C;
         for (int k=0; k<C; k=+1)
         {
             pixel[k] = newColor;
