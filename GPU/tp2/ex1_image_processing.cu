@@ -21,8 +21,8 @@ void process(int N, int M, int C, int pitch, float* img)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int j = blockIdx.y * blockDim.y + threadIdx.y;
-    if (i < n && j < m) {
-        *float pixel = get_ptr(img,i,j,C,pitch);
+    if (i < M && j < N) {
+        float* pixel = get_ptr(img,i,j,C,pitch);
         float newColor = 0;
         for (k=0; k<C; k=+1)
         {
@@ -31,7 +31,7 @@ void process(int N, int M, int C, int pitch, float* img)
         newColor =  newColor/C
         for (k=0; k<C; k=+1)
         {
-            pixel[k] = newColor
+            pixel[k] = newColor;
         }
     }
 }
