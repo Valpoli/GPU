@@ -26,7 +26,6 @@ __global__ void process(int N, int M, int C, int pitch, float* img)
             newColor += pixel[k];
         }
         newColor =  newColor/C;
-        //printf("%f pour le pixel %d , %d \n", newColor, i , j);
         for (int k=0; k<C; k+=1)
         {
             pixel[k] = newColor;
@@ -55,7 +54,7 @@ int main(int argc, char const *argv[])
     // launch kernel
     dim3 block_dim(32, 32);
     dim3 grid_dim((M + block_dim.x - 1) / block_dim.x, (N + block_dim.y - 1) / block_dim.y);
-    process<<<grid_dim, block_dim>>>(M,N,C,pitch,cpy);
+    process<<<grid_dim, block_dim>>>(N,M,C,pitch,cpy);
     
     // copy device memory back to host memory
     CUDA_CHECK(cudaMemcpy2D(img, pitch, cpy, N * sizeof(float), N * sizeof(float), M, cudaMemcpyDeviceToHost));
