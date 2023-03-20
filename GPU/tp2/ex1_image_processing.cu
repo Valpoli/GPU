@@ -26,7 +26,7 @@ __global__ void process(int N, int M, int C, int pitch, float* img)
             newColor += pixel[k];
         }
         newColor =  newColor/C;
-        printf("%f test \n", newColor);
+        printf("%f pour le pixel %d , %d \n", newColor, i , j);
         for (int k=0; k<C; k+=1)
         {
             pixel[k] = newColor;
