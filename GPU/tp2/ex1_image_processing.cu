@@ -21,6 +21,8 @@ __global__ void process(int N, int M, int C, int pitch, float* img)
     if (i < M && j < N) {
         float* pixel = get_ptr(img,i,j,C,pitch);
         float newColor = 0;
+        printf("pixel = %f\n", *pixel);
+        printf("pixel = %f\n", pixel[0]);
         for (int k=0; k<C; k+=1)
         {
             newColor += pixel[k];
