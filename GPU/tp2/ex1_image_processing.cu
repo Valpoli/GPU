@@ -18,7 +18,7 @@ __global__ void process(int N, int M, int C, int pitch, float* img)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int j = blockIdx.y * blockDim.y + threadIdx.y;
-    if (i < N && j < M) {
+    if (i < M && j < N) {
         float* pixel = get_ptr(img,i,j,C,pitch);
         float newColor = 0;
         for (int k=0; k<C; k+=1)
@@ -31,22 +31,6 @@ __global__ void process(int N, int M, int C, int pitch, float* img)
             pixel[k] = newColor;
         }
     }
-    // test 
-    for (int w=0; w<100; w+=1)
-        {
-        float* pixel = get_ptr(img,350,100+w,C,pitch);
-        float newColor = 0.5;
-        for (int k=0; k<C; k+=1)
-        {
-            newColor += pixel[k];
-        }
-        newColor =  1;
-        for (int k=0; k<C; k+=1)
-        {
-            pixel[k] = newColor;
-        }
-        }
-
 }
 
 int main(int argc, char const *argv[])
