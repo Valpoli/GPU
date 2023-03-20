@@ -9,12 +9,10 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
     }
 }
 
-
 template <typename T>
 __device__ inline T* get_ptr(T *img, int i, int j, int C, size_t pitch) {
-    return reinterpret_cast<T*>(reinterpret_cast<char*>(img) + (j*pitch + i - (j*pitch + i)%C) * sizeof(T));
+    return reinterpret_cast<T*>(reinterpret_cast<char*>(img) + i * pitch + j /* - (j*pitch + i)%C)*/ * sizeof(T));
 }
-
 
 __global__ void process(int N, int M, int C, int pitch, float* img)
 {
@@ -34,7 +32,6 @@ __global__ void process(int N, int M, int C, int pitch, float* img)
         }
     }
 }
-
 
 int main(int argc, char const *argv[])
 {
@@ -60,9 +57,8 @@ int main(int argc, char const *argv[])
     process<<<grid_dim, block_dim>>>(N,M,C,pitch,cpy);
     
     // copy device memory back to host memory
-    //CUDA_CHECK(cudaMemcpy2D(img, N * sizeof(float), cpy, pitch, M * sizeof(float), N, cudaMemcpyDeviceToHost));
-    
-    image::save("result.jpg", N, M, C, cpy);
+    CUDA_CHECK(cudaMemcpy2D(img, pitch, cpy, N * sizeof(float), N * sizeof(float), M, cudaMemcpyHostToDevice));
+    image::save("result.jpg", N, M, C, img);
 
     cudaFree(cpy);
     free(img);
