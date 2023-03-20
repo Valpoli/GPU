@@ -11,29 +11,20 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
 
 template <typename T>
 __device__ inline T* get_ptr(T *img, int i, int j, int C, size_t pitch) {
-    return img + i * pitch / sizeof(float) + j * C;
+    return (float*)((char*)img + i * pitch) + j * C;
 }
 
 __global__ void process(int N, int M, int C, int pitch, float* img)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    int j = blockIdx.y * blockDim.y + threadIdx.y;
-    int cpt = 0;
-    if (i < M && j < N) {
-        float* pixel = get_ptr(img,i,j,C,pitch);
-        float newColor = 0;
-        for (int k=0; k<C; k+=1)
-        {
-            newColor += pixel[k];
-        }
-        newColor =  newColor/C;
-        for (int k=0; k<C; k+=1)
-        {
-            pixel[k] = newColor;
-        }
-        cpt += 1;
+    int i = blockIdx.y * blockDim.y + threadIdx.y;
+    int j = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < N && j < M) {
+        float* pixel = get_ptr(img, i, j, C, pitch);
+        float k = (*pixel + *(pixel + 1) + *(pixel + 2)) / 3.0f;
+        *pixel = k;
+        *(pixel + 1) = k;
+        *(pixel + 2) = k;
     }
-    printf("%d\n",cpt);
 }
 
 int main(int argc, char const *argv[])
