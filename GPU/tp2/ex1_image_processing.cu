@@ -55,7 +55,7 @@ int main(int argc, char const *argv[])
     CUDA_CHECK(cudaMemcpy2D(cpy, pitch, img, N * sizeof(float), N * sizeof(float), M, cudaMemcpyHostToDevice));
     
     // launch kernel
-    dim3 block_dim(16, 16);
+    dim3 block_dim(32, 32);
     dim3 grid_dim((M + block_dim.x - 1) / block_dim.x, (N + block_dim.y - 1) / block_dim.y);
     process<<<grid_dim, block_dim>>>(N,M,C,pitch,cpy);
     
