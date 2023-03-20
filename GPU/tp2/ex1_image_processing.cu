@@ -25,7 +25,7 @@ __global__ void process(int N, int M, int C, int pitch, float* img)
         {
             newColor += pixel[k];
         }
-        newColor =  0.5;
+        newColor =  newColor/C;
         for (int k=0; k<C; k+=1)
         {
             pixel[k] = newColor;
