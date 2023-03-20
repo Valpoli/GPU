@@ -11,7 +11,7 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
 
 template <typename T>
 __device__ inline T* get_ptr(T *img, int i, int j, int C, size_t pitch) {
-    return reinterpret_cast<T*>(reinterpret_cast<char*>(img) + (j*(C - 1) + i * pitch) * sizeof(T));
+    return reinterpret_cast<T*>(reinterpret_cast<char*>(img) + i * pitch + j /* - (j*pitch + i)%C)*/ * sizeof(T));
 }
 
 __global__ void process(int N, int M, int C, int pitch, float* img)
@@ -21,8 +21,8 @@ __global__ void process(int N, int M, int C, int pitch, float* img)
     if (i < M && j < N) {
         float* pixel = get_ptr(img,i,j,C,pitch);
         float newColor = 0;
+        printf("pixel = %f\n", *pixel);
         
-        printf("pixel avec les indices = %f\n", pixel[0]);
         for (int k=0; k<C; k+=1)
         {
             newColor += pixel[k];
@@ -59,7 +59,7 @@ int main(int argc, char const *argv[])
     process<<<grid_dim, block_dim>>>(N,M,C,pitch,cpy);
     
     // copy device memory back to host memory
-    CUDA_CHECK(cudaMemcpy2D(img, N * sizeof(float), cpy, pitch, N * sizeof(float), M, cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy2D(img, pitch, cpy, N * sizeof(float), N * sizeof(float), M, cudaMemcpyDeviceToHost));
     image::save("result.jpg", N, M, C, img);
 
     cudaFree(cpy);
