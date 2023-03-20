@@ -49,16 +49,16 @@ int main(int argc, char const *argv[])
     size_t pitch;
 
     float* cpy;
-    CUDA_CHECK(cudaMallocPitch(&cpy, &pitch, N * sizeof(float), M));
-    CUDA_CHECK(cudaMemcpy2D(cpy, pitch, img, N * sizeof(float), N * sizeof(float), M, cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMallocPitch(&cpy, &pitch, M * sizeof(float), N));
+    CUDA_CHECK(cudaMemcpy2D(cpy, pitch, img, M * sizeof(float), M * sizeof(float), N, cudaMemcpyHostToDevice));
     
     // launch kernel
     dim3 block_dim(32, 32);
-    dim3 grid_dim((M + block_dim.x - 1) / block_dim.x, (N + block_dim.y - 1) / block_dim.y);
+    dim3 grid_dim((N + block_dim.x - 1) / block_dim.x, (M + block_dim.y - 1) / block_dim.y);
     process<<<grid_dim, block_dim>>>(N,M,C,pitch,cpy);
     
     // copy device memory back to host memory
-    CUDA_CHECK(cudaMemcpy2D(img, pitch, cpy, N * sizeof(float), N * sizeof(float), M, cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy2D(img, pitch, cpy, M * sizeof(float), M * sizeof(float), N, cudaMemcpyDeviceToHost));
     image::save("result.jpg", N, M, C, img);
 
     cudaFree(cpy);
