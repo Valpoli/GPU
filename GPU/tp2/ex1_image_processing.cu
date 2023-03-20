@@ -58,7 +58,7 @@ int main(int argc, char const *argv[])
     
     // copy device memory back to host memory
     CUDA_CHECK(cudaMemcpy2D(img, N * sizeof(float), cpy, pitch, N * sizeof(float), M, cudaMemcpyDeviceToHost));
-    image::save("result.jpg", N, M, C, img);
+    image::save("result.jpg", M, N, C, img);
 
     cudaFree(cpy);
     free(img);
