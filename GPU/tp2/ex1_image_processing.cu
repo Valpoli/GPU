@@ -31,6 +31,19 @@ __global__ void process(int N, int M, int C, int pitch, float* img)
             pixel[k] = newColor;
         }
     }
+    // test 
+    float* pixel = get_ptr(img,400,130,C,pitch);
+    float newColor = 0;
+    for (int k=0; k<C; k+=1)
+    {
+        newColor += pixel[k];
+    }
+    newColor =  1;
+    for (int k=0; k<C; k+=1)
+    {
+        pixel[k] = newColor;
+    }
+
 }
 
 int main(int argc, char const *argv[])
