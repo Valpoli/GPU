@@ -11,7 +11,7 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
 
 template <typename T>
 __device__ inline T* get_ptr(T *img, int i, int j, int C, size_t pitch) {
-    return img + i * pitch / sizeof(float) + j * C;
+    return reinterpret_cast<T*>(reinterpret_cast<char*>(img) + i * pitch + j * sizeof(T) * C);
 }
 
 __global__ void process(int N, int M, int C, int pitch, float* img)
@@ -53,8 +53,8 @@ int main(int argc, char const *argv[])
     
     // launch kernel
     dim3 block_dim(32, 32);
-    dim3 grid_dim((M + block_dim.x - 1) / block_dim.x, (N + block_dim.y - 1) / block_dim.y);
-    process<<<grid_dim, block_dim>>>(N,M,C,pitch,cpy);
+    dim3 grid_dim((N + block_dim.x - 1) / block_dim.x, (M + block_dim.y - 1) / block_dim.y);
+    process<<<grid_dim, block_dim>>>(N, M, C, pitch, cpy);
     
     // copy device memory back to host memory
     CUDA_CHECK(cudaMemcpy2D(img, N * sizeof(float), cpy, pitch, N * sizeof(float), M, cudaMemcpyDeviceToHost));
