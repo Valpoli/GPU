@@ -11,7 +11,7 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
 
 template <typename T>
 __device__ inline T* get_ptr(T *img, int i, int j, int C, size_t pitch) {
-    return img + i * pitch /*/ sizeof(float)*/ + j * C;
+    return img + i * pitch / sizeof(float) + j * C;
 }
 
 __global__ void process(int N, int M, int C, int pitch, float* img)
