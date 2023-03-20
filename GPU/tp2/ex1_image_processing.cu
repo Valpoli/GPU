@@ -57,7 +57,7 @@ int main(int argc, char const *argv[])
     process<<<grid_dim, block_dim>>>(N,M,C,pitch,cpy);
     
     // copy device memory back to host memory
-    CUDA_CHECK(cudaMemcpy2D(img, pitch, cpy, N * sizeof(float), N * sizeof(float), M, cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy2D(img, N * sizeof(float), cpy, pitch, N * sizeof(float), M, cudaMemcpyDeviceToHost));
     image::save("result.jpg", N, M, C, img);
 
     cudaFree(cpy);
