@@ -1,92 +1,74 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <cuda_runtime.h>
+#include <string>
+#include <iostream>
+#include "image.h"
 
-#define BLOCK_DIM 16
-
-// Device function to get the pointer to the pixel (i,j)
-__device__ float* get_ptr(float* img, int i, int j, int C, size_t pitch)
-{
-    return (float*)((char*)img + i * pitch) + j * C;
-}
-
-// CUDA kernel to modify a pixel
-__global__ void process(int N, int M, int C, size_t pitch, float* img)
-{
-    int i = blockIdx.y * blockDim.y + threadIdx.y;
-    int j = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i < N && j < M) {
-        float* pixel = get_ptr(img, i, j, C, pitch);
-        float k = (*pixel + *(pixel + 1) + *(pixel + 2)) / 3.0f;
-        *pixel = k;
-        *(pixel + 1) = k;
-        *(pixel + 2) = k;
+#define CUDA_CHECK(code) { cuda_check((code), __FILE__, __LINE__); }
+inline void cuda_check(cudaError_t code, const char *file, int line) {
+    if(code != cudaSuccess) {
+        fprintf(stderr,"%s:%d: [CUDA ERROR] %s\n", file, line, cudaGetErrorString(code));
     }
 }
 
-int main(int argc, char** argv)
+template <typename T>
+__device__ inline T* get_ptr(T *img, int i, int j, int C, size_t pitch) {
+    return img + i * pitch / sizeof(float) + j * C;
+}
+
+__global__ void process(int N, int M, int C, int pitch, float* img)
 {
-    if (argc < 3) {
-        printf("Usage: %s <input_image> <output_image>\n", argv[0]);
-        exit(EXIT_FAILURE);
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
+    if (i < M && j < N) {
+        float* pixel = get_ptr(img,i,j,C,pitch);
+        float newColor = 0;
+        for (int k=0; k<C; k+=1)
+        {
+            newColor += pixel[k];
+        }
+        newColor =  newColor/C;
+        for (int k=0; k<C; k+=1)
+        {
+            pixel[k] = newColor;
+        }
     }
+}
 
-    // Load the image into a float array on the host
-    int N, M, C;
-    float* h_img = NULL;
-    size_t h_pitch;
-    FILE* fp = fopen(argv[1], "rb");
-    if (fp == NULL) {
-        printf("Error: could not open file %s\n", argv[1]);
-        exit(EXIT_FAILURE);
-    }
-    fread(&N, sizeof(int), 1, fp);
-    fread(&M, sizeof(int), 1, fp);
-    fread(&C, sizeof(int), 1, fp);
-    h_pitch = M * C * sizeof(float);
-    h_img = (float*)malloc(N * h_pitch);
-    for (int i = 0; i < N; i++) {
-        float* row = (float*)((char*)h_img + i * h_pitch);
-        fread(row, sizeof(float), M * C, fp);
-    }
-    fclose(fp);
+int main(int argc, char const *argv[])
+{
+    const std::string filename = argc >= 2 ? argv[1] : "image.jpg";
+    std::cout << "filename = " << filename << std::endl;
+    int M = 0;
+    int N = 0;
+    int C = 0;
+    float* img = image::load(filename, &N, &M, &C);
+    std::cout << "N (columns, width) = " << N << std::endl;
+    std::cout << "M (rows, height) = " << M << std::endl;
+    std::cout << "C (channels, depth) = " << C << std::endl;
 
-    // Allocate memory for the image on the device
-    float* d_img = NULL;
-    size_t d_pitch;
-    cudaMallocPitch(&d_img, &d_pitch, M * C * sizeof(float), N);
+    size_t cpyPitch;
 
+    float* cpy;
+    //CUDA_CHECK(cudaMallocPitch(&cpy, &pitch, N * sizeof(float), M));
+    //CUDA_CHECK(cudaMemcpy2D(cpy, pitch, img, N * sizeof(float), N * sizeof(float), M, cudaMemcpyHostToDevice));
+
+    cudaMallocPitch(&cpy, &cpyPitch, M * C * sizeof(float), N);
+
+
+    size_t imgPitch;
     // Copy the image data from the host to the device
-    cudaMemcpy2D(d_img, d_pitch, h_img, h_pitch, M * C * sizeof(float), N, cudaMemcpyHostToDevice);
+    cudaMemcpy2D(cpy, cpyPitch, img, imgPitch, M * C * sizeof(float), N, cudaMemcpyHostToDevice);
+    
+    // launch kernel
+    dim3 block_dim(32, 32);
+    dim3 grid_dim((M + block_dim.x - 1) / block_dim.x, (N + block_dim.y - 1) / block_dim.y);
+    process<<<grid_dim, block_dim>>>(N,M,C,cpyPitch,cpy);
+    
+    // copy device memory back to host memory
+    CUDA_CHECK(cudaMemcpy2D(img, /*N * sizeof(float)*/ imgPitch , cpy, cpyPitch, M * C * sizeof(float), N, cudaMemcpyDeviceToHost));
+    image::save("result.jpg", N, M, C, img);
 
-    // Define the grid and block dimensions for the kernel launch
-    dim3 blockDim(BLOCK_DIM, BLOCK_DIM);
-    dim3 gridDim((M + BLOCK_DIM - 1) / BLOCK_DIM, (N + BLOCK_DIM - 1) / BLOCK_DIM);
+    cudaFree(cpy);
+    free(img);
 
-    // Launch the kernel
-    process<<<gridDim, blockDim>>>(N, M, C, d_pitch, d_img);
-
-    // Copy the modified image data from the device to the host
-    cudaMemcpy2D(h_img, h_pitch, d_img, d_pitch, M * C * sizeof(float), N, cudaMemcpyDeviceToHost);
-
-    // Save the modified image on the host
-    fp = fopen(argv[2], "wb");
-    if (fp == NULL) {
-        printf("Error: could not open file %s\n", argv[2]);
-        exit(EXIT_FAILURE);
-    }
-    fwrite(&N, sizeof(int), 1, fp);
-    fwrite(&M, sizeof(int), 1, fp);
-fwrite(&C, sizeof(int), 1, fp);
-for (int i = 0; i < N; i++) {
-    float* row = (float*)((char*)h_img + i * h_pitch);
-    fwrite(row, sizeof(float), M * C, fp);
+    return 0;
 }
-fclose(fp);
-
-// Free the memory
-free(h_img);
-cudaFree(d_img);
-
-return 0;
-
