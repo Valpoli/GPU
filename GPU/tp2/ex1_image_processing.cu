@@ -53,7 +53,7 @@ int main(int argc, char const *argv[])
     
     // launch kernel
     dim3 block_dim(32, 32);
-    dim3 grid_dim((M + block_dim.x - 1) / block_dim.x, (N + block_dim.y - 1) / block_dim.y);
+    dim3 grid_dim((N + block_dim.x - 1) / block_dim.x, (M + block_dim.y - 1) / block_dim.y);
     process<<<grid_dim, block_dim>>>(N,M,C,pitch,cpy);
     
     // copy device memory back to host memory
