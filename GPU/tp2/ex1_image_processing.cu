@@ -45,24 +45,19 @@ int main(int argc, char const *argv[])
     std::cout << "M (rows, height) = " << M << std::endl;
     std::cout << "C (channels, depth) = " << C << std::endl;
 
-    size_t cpyPitch;
+    size_t pitch;
 
     float* cpy;
-    //CUDA_CHECK(cudaMallocPitch(&cpy, &pitch, N * sizeof(float), M));
-    //CUDA_CHECK(cudaMemcpy2D(cpy, pitch, img, N * sizeof(float), N * sizeof(float), M, cudaMemcpyHostToDevice));
-
-    cudaMallocPitch(&cpy, &cpyPitch, M * C * sizeof(float), N);
-
-    // Copy the image data from the host to the device
-    cudaMemcpy2D(cpy, cpyPitch, img, N * sizeof(float), M * C * sizeof(float), N, cudaMemcpyHostToDevice);
+    CUDA_CHECK(cudaMallocPitch(&cpy, &pitch, N * C * sizeof(float), M));
+    CUDA_CHECK(cudaMemcpy2D(cpy, pitch, img, N * C * sizeof(float), N * sizeof(float), M, cudaMemcpyHostToDevice));
     
     // launch kernel
     dim3 block_dim(32, 32);
     dim3 grid_dim((M + block_dim.x - 1) / block_dim.x, (N + block_dim.y - 1) / block_dim.y);
-    process<<<grid_dim, block_dim>>>(N,M,C,cpyPitch,cpy);
+    process<<<grid_dim, block_dim>>>(N,M,C,pitch,cpy);
     
     // copy device memory back to host memory
-    CUDA_CHECK(cudaMemcpy2D(img, N * sizeof(float) , cpy, cpyPitch, M * C * sizeof(float), N, cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy2D(img, C * N * sizeof(float), cpy, pitch, C * N * sizeof(float), M, cudaMemcpyDeviceToHost));
     image::save("result.jpg", N, M, C, img);
 
     cudaFree(cpy);
