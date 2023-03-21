@@ -72,3 +72,15 @@ int main(int argc, char const *argv[])
 
     return 0;
 }
+<<<<<<< Updated upstream
+=======
+fclose(fp);
+
+// Free the memory
+free(h_img);
+cudaFree(d_img);
+
+return 0;
+
+}
+>>>>>>> Stashed changes
