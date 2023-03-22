@@ -29,6 +29,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
             res[i] += buffer[k];
         }
     }
+    print("LE RESULTAT POUR CE BLOC EST : %f, PAS MAL, N'EST CE PAS ?????\n",res[i])
 }
 
 int main(int argc, char const *argv[])
