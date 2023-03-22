@@ -40,31 +40,31 @@ int main(int argc, char const *argv[])
 
     x = (float*)malloc(N * sizeof(float));
     y = (float*)malloc(N * sizeof(float));
-    res = (float*)malloc((N/(block_dim*block_count)) * sizeof(float));
+    res = (float*)malloc(((int)(N/(block_dim*block_count))) * sizeof(float));
 
     for (int i = 0; i < N; i++) {
         x[i] = 2 * float(std::rand()) / RAND_MAX - 1; // random float in (-1,+1)
         y[i] = 2 * float(std::rand()) / RAND_MAX - 1; // random float in (-1,+1)
         host_expected_result += x[i] * y[i];
     }
-    for (int i = 0; i < (N/(block_dim*block_count)) * sizeof(float); i++) {
+    for (int i = 0; i < ((int)(N/(block_dim*block_count))) * sizeof(float); i++) {
         res[i] = 0;
     }
 
 
     CUDA_CHECK(cudaMalloc(&dx, N * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&dy, N * sizeof(float)));
-    CUDA_CHECK(cudaMalloc(&dres, (N/(block_dim*block_count)) * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&dres, ((int)(N/(block_dim*block_count))) * sizeof(float)));
     CUDA_CHECK(cudaMemcpy(dx, x, N * sizeof(float), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(dy, y, N * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(dres, res, (N/(block_dim*block_count)) * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(dres, res, ((int)(N/(block_dim*block_count))) * sizeof(float), cudaMemcpyHostToDevice));
 
     dot<<<block_count, block_dim>>>(N,dx,dy,dres);
     
-    CUDA_CHECK(cudaMemcpy(res, dres, (N/(block_dim*block_count)) * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(res, dres, ((int)(N/(block_dim*block_count))) * sizeof(float), cudaMemcpyDeviceToHost));
 
 
-    for (int i = 0; i < (N/(block_dim*block_count)) * sizeof(float); i++) {
+    for (int i = 0; i < ((int)(N/(block_dim*block_count))) * sizeof(float); i++) {
         device_result += res[i];
     }
 
