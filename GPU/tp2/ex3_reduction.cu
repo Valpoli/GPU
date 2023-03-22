@@ -15,14 +15,13 @@ constexpr auto block_count = 2; // 256 constexpr equivalent to gridDim.x in CUDA
 __global__ void dot(int n, const float *x, const float *y, float* res)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
-    printf("%d\n",block_dim);
-    __shared__ float buffer[block_dim];
-    buffer[blockIdx.x * blockDim.x + threadIdx.x] = 0;
+    __shared__ float buffer[block_dim] = {0};
+    //buffer[blockIdx.x] = 0;
     for (int j = i; j < n; j += block_dim*block_count) {
-        buffer[blockIdx.x * blockDim.x + threadIdx.x] += y[j] * x[j];
-        printf("on fait la multiplication %f * %f = %f et le buffer egal a %f dans le bloc %d\n",y[j],x[j],y[j] * x[j], buffer[blockIdx.x * blockDim.x + threadIdx.x], i);
+        buffer[blockIdx.x] += y[j] * x[j];
+        //printf("on fait la multiplication %f * %f = %f et le buffer egal a %f dans le bloc %d\n",y[j],x[j],y[j] * x[j], buffer[blockIdx.x * blockDim.x + threadIdx.x], i);
     }
-    printf("this is the block %d and the total for it is %f\n",blockIdx.x * blockDim.x + threadIdx.x,buffer[blockIdx.x * blockDim.x + threadIdx.x]);
+    //printf("this is the block %d and the total for it is %f\n",blockIdx.x * blockDim.x + threadIdx.x,buffer[blockIdx.x * blockDim.x + threadIdx.x]);
     __syncthreads();
     if (i == 0)
     {
