@@ -18,10 +18,10 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     __shared__ float buffer[block_dim];
     buffer[blockIdx.x * blockDim.x + threadIdx.x] = 0;
     for (int j = i; j < n; j += block_dim*block_count) {
-        printf("on fait la multiplication %f * %f = %f\n",y[j],x[j],y[j] * x[j]);
         buffer[blockIdx.x * blockDim.x + threadIdx.x] += y[j] * x[j];
+        printf("on fait la multiplication %f * %f = %f et le buffer egal a %f\n",y[j],x[j],y[j] * x[j], buffer[blockIdx.x * blockDim.x + threadIdx.x]);
     }
-    printf("this is the block %d and the total for it is %f\n",blockIdx.x,buffer[blockIdx.x]);
+    printf("this is the block %d and the total for it is %f\n",blockIdx.x * blockDim.x + threadIdx.x,buffer[blockIdx.x * blockDim.x + threadIdx.x]);
     __syncthreads();
     if (i == 0)
     {
@@ -29,7 +29,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
             res[i] += buffer[k];
         }
     }
-    printf("LE RESULTAT POUR CE BLOC %d EST : %f, PAS MAL, N'EST CE PAS ?????\n",blockIdx.x * blockDim.x + threadIdx.x,res[i]);
+    //printf("LE RESULTAT POUR CE BLOC %d EST : %f, PAS MAL, N'EST CE PAS ?????\n",blockIdx.x * blockDim.x + threadIdx.x,res[i]);
 }
 
 int main(int argc, char const *argv[])
