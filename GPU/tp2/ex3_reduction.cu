@@ -19,7 +19,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     //buffer[blockDim.x] = 0;
     for (int j = i; j < n; j += block_dim*block_count) {
 
-        printf("%d\n", blockDim.x);
+        printf("%d\n", blockIdx.x);
         buffer[blockDim.x] += y[j] * x[j];
         //printf("on fait la multiplication %f * %f = %f et le buffer egal a %f dans le bloc %d\n",y[j],x[j],y[j] * x[j], buffer[blockIdx.x], blockIdx.x);
     }
