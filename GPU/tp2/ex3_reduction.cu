@@ -11,12 +11,29 @@ constexpr auto block_dim = 256;  // constexpr equivalent to blockDim.x in CUDA k
 constexpr auto block_count = 256; // constexpr equivalent to gridDim.x in CUDA kernel
 
 
+
+__global__ void dot(int n, const float *x, const float *y, float* res)
+{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    __shared__ float buffer[block_dim];
+    for (int j = i; j < n; j += block_dim*block_count) {
+        buffer[i] += y[j] * x[j];
+        __syncthreads();
+    }
+    if (i == 0)
+    {
+        for (int k = 0; k < block_dim; k++){
+            *res += buffer[i];
+        }
+    }
+}
+
 int main(int argc, char const *argv[])
 {
     const int N = argc >= 2 ? std::stoi(argv[1]) : 1e6;
     std::cout << "N = " << N << std::endl;
 
-    float *x, *y;
+    float *x, *y, *dx, *dy, *res;
 
     float host_expected_result = 0;
     float device_result = 0;
@@ -30,7 +47,21 @@ int main(int argc, char const *argv[])
         host_expected_result += x[i] * y[i];
     }
 
-    // ...
+    CUDA_CHECK(cudaMalloc(&dx, N * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&dy, N * sizeof(float)));
+    CUDA_CHECK(cudaMemcpy(dx, x, N * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(dy, y, N * sizeof(float), cudaMemcpyHostToDevice));
+
+    dot<<<block_count, block_dim>>>(N,dx,dy,res);
+    
+    if (host_expected_result == *res)
+    {
+        std::cout << "Valid result" << std::endl;
+    }
+    else
+    {
+        std::cout << "Invalid result" << std::endl;
+    }
 
     std::cout << "host_expected_result = " << host_expected_result << std::endl;
     std::cout << "device_result = " << device_result << std::endl;

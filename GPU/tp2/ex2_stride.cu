@@ -16,6 +16,10 @@ __global__ void add(int n, float *x, float *y, int stride) {
 
 int main(int argc, char const *argv[])
 {
+
+    std::cout << "Max error: " << std::endl;
+    std::cout << "Max error: " << std::endl;
+    std::cout << "Max error: " << std::endl;
     const int N = argc >= 2 ? std::stoi(argv[1]) : 1e6;
     std::cout << "N = " << N << std::endl;
 
@@ -28,16 +32,17 @@ int main(int argc, char const *argv[])
         y[i] = 2.0f;
     }
 
-    cudaMalloc(&dx, N * sizeof(float));
-    cudaMalloc(&dy, N * sizeof(float));
-    cudaMemcpy(dx, x, N * sizeof(float), cudaMemcpyHostToDevice);
-    cudaMemcpy(dy, y, N * sizeof(float), cudaMemcpyHostToDevice);
+    CUDA_CHECK(cudaMalloc(&dx, N * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&dy, N * sizeof(float)));
+    CUDA_CHECK(cudaMemcpy(dx, x, N * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(dy, y, N * sizeof(float), cudaMemcpyHostToDevice));
 
     int nbThreadBlock = 512;
     int threadByBlock = 128;
     int stride = 512*128;
     add<<<nbThreadBlock,threadByBlock>>>(N, dx, dy, stride);
-    cudaMemcpy(y, dy, N * sizeof(float), cudaMemcpyDeviceToHost);
+    CUDA_CHECK(cudaMemcpy(y, dy, N * sizeof(float), cudaMemcpyDeviceToHost));
+
     float maxError = 0.0f;
     for (int i = 0; i < N; i++) {
         maxError = fmax(maxError, fabs(y[i] - 3.0f));
