@@ -29,7 +29,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
             res[i] += buffer[k];
         }
     }
-    printf("LE RESULTAT POUR CE BLOC EST : %f, PAS MAL, N'EST CE PAS ?????\n",res[i]);
+    printf("LE RESULTAT POUR CE BLOC %d EST : %f, PAS MAL, N'EST CE PAS ?????\n",blockIdx.x,res[i]);
 }
 
 int main(int argc, char const *argv[])
@@ -50,7 +50,7 @@ int main(int argc, char const *argv[])
         x[i] = 2 * float(std::rand()) / RAND_MAX - 1; // random float in (-1,+1)
         y[i] = 2 * float(std::rand()) / RAND_MAX - 1; // random float in (-1,+1)
         host_expected_result += x[i] * y[i];
-        printf("on fait la multiplication %f * %f = %f et le total est %f\n",y[i],x[i],y[i] * x[i], host_expected_result);
+        //printf("on fait la multiplication %f * %f = %f et le total est %f\n",y[i],x[i],y[i] * x[i], host_expected_result);
     }
     for (int i = 0; i < N; i++) {
         res[i] = 0;
