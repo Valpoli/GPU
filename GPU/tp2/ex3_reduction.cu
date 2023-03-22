@@ -19,7 +19,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     buffer[blockIdx.x * blockDim.x + threadIdx.x] = 0;
     for (int j = i; j < n; j += block_dim*block_count) {
         buffer[blockIdx.x * blockDim.x + threadIdx.x] += y[j] * x[j];
-        printf("on fait la multiplication %f * %f = %f et le buffer egal a %f\n",y[j],x[j],y[j] * x[j], buffer[blockIdx.x * blockDim.x + threadIdx.x]);
+        printf("on fait la multiplication %f * %f = %f et le buffer egal a %f dans le bloc %f\n",y[j],x[j],y[j] * x[j], buffer[blockIdx.x * blockDim.x + threadIdx.x], blockIdx.x * blockDim.x + threadIdx.x);
     }
     printf("this is the block %d and the total for it is %f\n",blockIdx.x * blockDim.x + threadIdx.x,buffer[blockIdx.x * blockDim.x + threadIdx.x]);
     __syncthreads();
@@ -69,9 +69,9 @@ int main(int argc, char const *argv[])
 
     int m = 0;
     while( m<2) {
+        printf("%f\n", res[m]);
         device_result += res[m];
         m += 1;
-        printf("%f\n", res[m]);
     }
 
 
