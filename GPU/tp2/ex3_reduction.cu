@@ -70,6 +70,7 @@ int main(int argc, char const *argv[])
     while( res[m]!= 0) {
         device_result += res[m];
         m += 1;
+        printf("%f\n", res[m]);
     }
 
 
