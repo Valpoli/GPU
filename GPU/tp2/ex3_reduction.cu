@@ -19,14 +19,14 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     //buffer[blockIdx.x] = 0;
     for (int j = i; j < n; j += block_dim*block_count) {
         buffer[blockIdx.x] += y[j] * x[j];
-        //printf("on fait la multiplication %f * %f = %f et le buffer egal a %f dans le bloc %d\n",y[j],x[j],y[j] * x[j], buffer[blockIdx.x * blockDim.x + threadIdx.x], i);
+        printf("on fait la multiplication %f * %f = %f et le buffer egal a %f dans le bloc %d\n",y[j],x[j],y[j] * x[j], buffer[blockIdx.x], blockIdx.x);
     }
     //printf("this is the block %d and the total for it is %f\n",blockIdx.x * blockDim.x + threadIdx.x,buffer[blockIdx.x * blockDim.x + threadIdx.x]);
     __syncthreads();
     if (i == 0)
     {
         for (int k = 0; k < block_dim; k++){
-            printf("%d\n", k);
+            printf("%d\n", buffer[k]);
             res[0] += buffer[k];
         }
         for (int k = 0; k < 4; k++){
