@@ -67,7 +67,7 @@ int main(int argc, char const *argv[])
     CUDA_CHECK(cudaMemcpy(res, dres, N * sizeof(float), cudaMemcpyDeviceToHost));
 
     int m = 0;
-    while( res[m]!= 0) {
+    while( m<2) {
         device_result += res[m];
         m += 1;
         printf("%f\n", res[m]);
