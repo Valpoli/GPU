@@ -26,6 +26,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     if (i == 0)
     {
         for (int k = 0; k < block_dim; k++){
+            printf("%d\n", blockIdx.x * blockDim.x + threadIdx.x);
             res[blockIdx.x * blockDim.x + threadIdx.x] += buffer[k];
         }
         for (int k = 0; k < 4; k++){
