@@ -16,10 +16,10 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     __shared__ float buffer[block_dim];
-    buffer[blockIdx.x] = 0;
+    //buffer[blockIdx.x] = 0;
     for (int j = i; j < n; j += block_dim*block_count) {
         buffer[blockIdx.x] += y[j] * x[j];
-        printf("on fait la multiplication %f * %f = %f et le buffer egal a %f dans le bloc %d\n",y[j],x[j],y[j] * x[j], buffer[blockIdx.x], blockIdx.x);
+        //printf("on fait la multiplication %f * %f = %f et le buffer egal a %f dans le bloc %d\n",y[j],x[j],y[j] * x[j], buffer[blockIdx.x], blockIdx.x);
     }
     //printf("this is the block %d and the total for it is %f\n",blockIdx.x * blockDim.x + threadIdx.x,buffer[blockIdx.x * blockDim.x + threadIdx.x]);
     __syncthreads();
@@ -27,12 +27,12 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     {
         for (int k = 0; k < block_dim; k++){
             printf("%d\n", buffer[k]);
-            res[0] += buffer[k];
+            //res[0] += buffer[k];
         }
-        for (int k = 0; k < 4; k++){
+        /*for (int k = 0; k < 4; k++){
             printf("%f,",res[k]);
         }
-        printf("\n");
+        printf("\n");*/
     }
 
     //printf("LE RESULTAT POUR CE BLOC %d EST : %f, PAS MAL, N'EST CE PAS ?????\n",blockIdx.x * blockDim.x + threadIdx.x,res[i]);
