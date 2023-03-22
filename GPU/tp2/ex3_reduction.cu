@@ -52,9 +52,6 @@ int main(int argc, char const *argv[])
         host_expected_result += x[i] * y[i];
         //printf("on fait la multiplication %f * %f = %f et le total est %f\n",y[i],x[i],y[i] * x[i], host_expected_result);
     }
-    for (int i = 0; i < N; i++) {
-        res[i] = 0;
-    }
 
     CUDA_CHECK(cudaMalloc(&dx, N * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&dy, N * sizeof(float)));
