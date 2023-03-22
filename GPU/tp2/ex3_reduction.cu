@@ -15,6 +15,7 @@ constexpr auto block_count = 2; // 256 constexpr equivalent to gridDim.x in CUDA
 __global__ void dot(int n, const float *x, const float *y, float* res)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
+    printf("%d\n",block_dim);
     __shared__ float buffer[block_dim];
     buffer[blockIdx.x * blockDim.x + threadIdx.x] = 0;
     for (int j = i; j < n; j += block_dim*block_count) {
