@@ -15,7 +15,7 @@ constexpr auto block_count = 2; // 256 constexpr equivalent to gridDim.x in CUDA
 __global__ void dot(int n, const float *x, const float *y, float* res)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
-    __shared__ float buffer[block_dim] = {0};
+    __shared__ float buffer[block_dim];
     //buffer[blockIdx.x] = 0;
     for (int j = i; j < n; j += block_dim*block_count) {
         buffer[blockIdx.x] += y[j] * x[j];
@@ -27,7 +27,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     {
         for (int k = 0; k < block_dim; k++){
             printf("%d\n", k);
-            res[k] = buffer[k];
+            res[0] += buffer[k];
         }
         for (int k = 0; k < 4; k++){
             printf("%f,",res[k]);
@@ -70,13 +70,13 @@ int main(int argc, char const *argv[])
     
     CUDA_CHECK(cudaMemcpy(res, dres, N * sizeof(float), cudaMemcpyDeviceToHost));
 
-    int m = 0;
+    /*int m = 0;
     while( m<2) {
         printf("%f\n", res[m]);
         device_result += res[m];
         m += 1;
-    }
-
+    }*/
+    device_result = res[0];
     std::cout << "host_expected_result = " << host_expected_result << std::endl;
     std::cout << "device_result = " << device_result << std::endl;
 
