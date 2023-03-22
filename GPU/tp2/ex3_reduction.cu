@@ -16,10 +16,10 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     __shared__ float buffer[block_dim];
-    buffer[blockIdx.x] = 0;
+    buffer[blockIdx.x * blockDim.x + threadIdx.x] = 0;
     for (int j = i; j < n; j += block_dim*block_count) {
         printf("on fait la multiplication %f * %f = %f\n",y[j],x[j],y[j] * x[j]);
-        buffer[blockIdx.x] += y[j] * x[j];
+        buffer[blockIdx.x * blockDim.x + threadIdx.x] += y[j] * x[j];
     }
     printf("this is the block %d and the total for it is %f\n",blockIdx.x,buffer[blockIdx.x]);
     __syncthreads();
