@@ -28,7 +28,12 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
         for (int k = 0; k < block_dim; k++){
             res[i] += buffer[k];
         }
+        for (int k = 0; k < 4; k++){
+            printf("%f,",res[k]);
+        }
+        printf("\n");
     }
+
     //printf("LE RESULTAT POUR CE BLOC %d EST : %f, PAS MAL, N'EST CE PAS ?????\n",blockIdx.x * blockDim.x + threadIdx.x,res[i]);
 }
 
@@ -70,7 +75,6 @@ int main(int argc, char const *argv[])
         device_result += res[m];
         m += 1;
     }
-
 
     std::cout << "host_expected_result = " << host_expected_result << std::endl;
     std::cout << "device_result = " << device_result << std::endl;
