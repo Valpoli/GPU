@@ -16,10 +16,6 @@ __global__ void add(int n, float *x, float *y, int stride) {
 
 int main(int argc, char const *argv[])
 {
-
-    std::cout << "Max error: " << std::endl;
-    std::cout << "Max error: " << std::endl;
-    std::cout << "Max error: " << std::endl;
     const int N = argc >= 2 ? std::stoi(argv[1]) : 1e6;
     std::cout << "N = " << N << std::endl;
 
