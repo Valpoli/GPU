@@ -61,12 +61,12 @@ int main(int argc, char const *argv[])
     
     CUDA_CHECK(cudaMemcpy(res, dres, N * sizeof(float), cudaMemcpyDeviceToHost));
 
-    /*int m = 0;
-    while( m<2) {
+    int m = 0;
+    while( m < 2) {
         printf("%f\n", res[m]);
         device_result += res[m];
         m += 1;
-    }*/
+    }
     device_result = res[0];
     std::cout << "host_expected_result = " << host_expected_result << std::endl;
     std::cout << "device_result = " << device_result << std::endl;
