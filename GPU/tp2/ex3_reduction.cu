@@ -16,11 +16,10 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     __shared__ float buffer[block_dim];
-    float tot = 0;
+    buffer[threadIdx.x] = 0;
     for (int j = i; j < n; j += block_dim*block_count) {
-        tot += y[j] * x[j];
+        buffer[threadIdx.x] += y[j] * x[j];
     }
-    buffer[threadIdx.x] = tot;
     __syncthreads();
     if (threadIdx.x == 0)
     {
