@@ -30,7 +30,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
 
 int main(int argc, char const *argv[])
 {
-    const int N = argc >= 2 ? std::stoi(argv[1]) : /*1e6*/ 8;
+    const int N = argc >= 2 ? std::stoi(argv[1]) : /*1e6*/ 16;
     std::cout << "N = " << N << std::endl;
 
     float *x, *y, *dx, *dy, *res, *dres;
