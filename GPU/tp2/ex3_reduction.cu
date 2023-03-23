@@ -8,7 +8,7 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
 }
 
 constexpr auto block_dim = 18;  // 256 constexpr equivalent to blockDim.x in CUDA kernel
-constexpr auto block_count = 18; // 256 constexpr equivalent to gridDim.x in CUDA kernel
+constexpr auto block_count = 1; // 256 constexpr equivalent to gridDim.x in CUDA kernel
 
 
 
