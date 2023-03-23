@@ -89,18 +89,12 @@ int main(int argc, char const *argv[])
 
     // DOT 2
     float device_result_dot2 = 0;
-    float *res2, *dres2;
-    res2 = (float*)malloc(block_count * sizeof(float));
-    CUDA_CHECK(cudaMalloc(&dres2, block_count * sizeof(float)));
-    CUDA_CHECK(cudaMemcpy(dres2, res2, block_count * sizeof(float), cudaMemcpyHostToDevice));
-
-    dot2<<<block_count, block_dim>>>(N,dx,dy,dres2);
-    
-    CUDA_CHECK(cudaMemcpy(res2, dres2, block_count * sizeof(float), cudaMemcpyDeviceToHost));
+    dot2<<<block_count, block_dim>>>(N,dx,dy,dres);
+    CUDA_CHECK(cudaMemcpy(res, dres, block_count * sizeof(float), cudaMemcpyDeviceToHost));
 
     m = 0;
     while( m < block_count) {
-        device_result_dot2 += res2[m];
+        device_result_dot2 += res[m];
         m += 1;
     }
 
@@ -109,11 +103,9 @@ int main(int argc, char const *argv[])
     cudaFree(dx);
     cudaFree(dy);
     cudaFree(dres);
-    cudaFree(dres2);
     free(x);
     free(y);
     free(res);
-    free(res2);
     
     return 0;
 }
