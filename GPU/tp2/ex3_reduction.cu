@@ -29,7 +29,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
         for (int k = 0; k < block_dim; k++){
             res[blockIdx.x] += buffer[k];
         }
-        printf("On s'occupe du bloc numero%f\n", blockIdx.x);
+        printf("On s'occupe du bloc numero %f , %f\n", blockIdx.x, blockIdx.x * blockDim.x);
     }
 }
 
