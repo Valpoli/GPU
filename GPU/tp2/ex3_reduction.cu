@@ -18,6 +18,10 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     __shared__ float buffer[block_dim];
     for (int j = i; j < n; j += block_dim*block_count) {
         buffer[threadIdx.x] += y[j] * x[j];
+        if (j <= 20 && j >= 18)
+        {
+            printf("HERRE \n");
+        }
     }
     __syncthreads();
     if (threadIdx.x == 0)
