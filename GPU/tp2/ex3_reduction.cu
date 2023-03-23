@@ -62,7 +62,7 @@ int main(int argc, char const *argv[])
 
     int m = 0;
     while( m < block_count) {
-        printf("%f\n", res[m]);
+        printf("Hello %f\n", res[m]);
         device_result += res[m];
         m += 1;
     }
