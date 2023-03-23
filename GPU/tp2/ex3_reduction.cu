@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
 
     x = (float*)malloc(N * sizeof(float));
     y = (float*)malloc(N * sizeof(float));
-    res = (float*)malloc(N * sizeof(float));
+    res = (float*)malloc(block_count * sizeof(float));
 
     for (int i = 0; i < N; i++) {
         x[i] = 2 * float(std::rand()) / RAND_MAX - 1; // random float in (-1,+1)
@@ -56,18 +56,19 @@ int main(int argc, char const *argv[])
     CUDA_CHECK(cudaMalloc(&dres, N * sizeof(float)));
     CUDA_CHECK(cudaMemcpy(dx, x, N * sizeof(float), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(dy, y, N * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(dres, res, block_count, cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(dres, res, block_count * sizeof(float), cudaMemcpyHostToDevice));
 
     dot<<<block_count, block_dim>>>(N,dx,dy,dres);
     
-    CUDA_CHECK(cudaMemcpy(res, dres, block_count, cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(res, dres, block_count * sizeof(float), cudaMemcpyDeviceToHost));
 
     int m = 0;
-    while(m < block_count) {
+    while( m < 2) {
         printf("%f\n", res[m]);
         device_result += res[m];
         m += 1;
     }
+
     std::cout << "host_expected_result = " << host_expected_result << std::endl;
     std::cout << "device_result = " << device_result << std::endl;
 
