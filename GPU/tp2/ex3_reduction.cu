@@ -21,7 +21,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
         printf("dans le bloc %d, on fait %f * %f = %f et ainsi le buffer du thread %d = %f \n", blockIdx.x, x[j], y[j], y[j] * x[j], threadIdx.x, buffer[threadIdx.x]);
     }
     __syncthreads();
-    if (i == 0)
+    if (threadIdx.x == 0)
     {
         for (int k = 0; k < block_dim; k++){
             res[blockIdx.x] += buffer[k];
