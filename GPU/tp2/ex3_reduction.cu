@@ -7,8 +7,8 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
     }
 }
 
-constexpr auto block_dim = 18;  // 256 constexpr equivalent to blockDim.x in CUDA kernel
-constexpr auto block_count = 1; // 256 constexpr equivalent to gridDim.x in CUDA kernel
+constexpr auto block_dim = 256;  // 256 constexpr equivalent to blockDim.x in CUDA kernel
+constexpr auto block_count = 256; // 256 constexpr equivalent to gridDim.x in CUDA kernel
 
 
 
@@ -18,10 +18,6 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     __shared__ float buffer[block_dim];
     for (int j = i; j < n; j += block_dim*block_count) {
         buffer[threadIdx.x] += y[j] * x[j];
-        if (j <= 20 && j >= 18)
-        {
-            printf("HERRE %f\n", y[j] * x[j]);
-        }
     }
     __syncthreads();
     if (threadIdx.x == 0)
@@ -29,13 +25,12 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
         for (int k = 0; k < block_dim; k++){
             res[blockIdx.x] += buffer[k];
         }
-        printf("On s'occupe du bloc numero %f , %f\n", blockIdx.x, blockIdx.x * blockDim.x);
     }
 }
 
 int main(int argc, char const *argv[])
 {
-    const int N = argc >= 2 ? std::stoi(argv[1]) : /*1e6*/ 20;
+    const int N = argc >= 2 ? std::stoi(argv[1]) : 1e6;
     std::cout << "N = " << N << std::endl;
 
     float *x, *y, *dx, *dy, *res, *dres;
@@ -56,7 +51,7 @@ int main(int argc, char const *argv[])
 
     CUDA_CHECK(cudaMalloc(&dx, N * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&dy, N * sizeof(float)));
-    CUDA_CHECK(cudaMalloc(&dres, N * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&dres, block_count * sizeof(float)));
     CUDA_CHECK(cudaMemcpy(dx, x, N * sizeof(float), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(dy, y, N * sizeof(float), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(dres, res, block_count * sizeof(float), cudaMemcpyHostToDevice));
