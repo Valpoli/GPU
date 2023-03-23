@@ -25,6 +25,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     {
         for (int k = 0; k < block_dim; k++){
             res[blockIdx.x] += buffer[k];
+            printf("%d est le bloc actuel\n", blockIdx.x);
         }
     }
 }
