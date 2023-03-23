@@ -7,8 +7,8 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
     }
 }
 
-constexpr auto block_dim = 2;  // 256 constexpr equivalent to blockDim.x in CUDA kernel
-constexpr auto block_count = 2; // 256 constexpr equivalent to gridDim.x in CUDA kernel
+constexpr auto block_dim = 256;  // 256 constexpr equivalent to blockDim.x in CUDA kernel
+constexpr auto block_count = 256; // 256 constexpr equivalent to gridDim.x in CUDA kernel
 
 
 
@@ -30,7 +30,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
 
 int main(int argc, char const *argv[])
 {
-    const int N = argc >= 2 ? std::stoi(argv[1]) : /*1e6*/ 16;
+    const int N = argc >= 2 ? std::stoi(argv[1]) : 1e6;
     std::cout << "N = " << N << std::endl;
 
     float *x, *y, *dx, *dy, *res, *dres;
