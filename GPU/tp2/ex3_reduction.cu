@@ -7,8 +7,8 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
     }
 }
 
-constexpr auto block_dim = 256;  // constexpr equivalent to blockDim.x in CUDA kernel
-constexpr auto block_count = 256; // constexpr equivalent to gridDim.x in CUDA kernel
+constexpr auto block_dim = 2;  // 256 constexpr equivalent to blockDim.x in CUDA kernel
+constexpr auto block_count = 2; // 256 constexpr equivalent to gridDim.x in CUDA kernel
 
 
 
@@ -46,6 +46,7 @@ int main(int argc, char const *argv[])
         x[i] = 2 * float(std::rand()) / RAND_MAX - 1; // random float in (-1,+1)
         y[i] = 2 * float(std::rand()) / RAND_MAX - 1; // random float in (-1,+1)
         host_expected_result += x[i] * y[i];
+        //printf("on fait la multiplication %f * %f = %f et le total est %f\n",y[i],x[i],y[i] * x[i], host_expected_result);
     }
 
     CUDA_CHECK(cudaMalloc(&dx, N * sizeof(float)));
@@ -60,7 +61,7 @@ int main(int argc, char const *argv[])
     CUDA_CHECK(cudaMemcpy(res, dres, block_count * sizeof(float), cudaMemcpyDeviceToHost));
 
     int m = 0;
-    while( m < block_count) {
+    while( m < 2) {
         printf("%f\n", res[m]);
         device_result += res[m];
         m += 1;
