@@ -17,9 +17,8 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     __shared__ float buffer[block_dim];
     for (int j = i; j < n; j += block_dim*block_count) {
-
-        printf("%d\n", blockIdx.x);
         buffer[threadIdx.x] += y[j] * x[j];
+        printf("dans le bloc %d, on fait %f * %f = %f et ainsi le buffer du thread %d = %f \n", blockIdx.x, x[j], y[j], y[j] * x[j], threadIdx.x, buffer[threadIdx.x]);
     }
     __syncthreads();
     if (i == 0)
