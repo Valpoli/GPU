@@ -89,6 +89,10 @@ int main(int argc, char const *argv[])
 
     // DOT 2
     float device_result_dot2 = 0;
+    for (int i = 0; i < block_count; i++) {
+        res[i] = 0;
+    }
+    CUDA_CHECK(cudaMemcpy(dres, res, block_count * sizeof(float), cudaMemcpyHostToDevice));
     dot2<<<block_count, block_dim>>>(N,dx,dy,dres);
     CUDA_CHECK(cudaMemcpy(res, dres, block_count * sizeof(float), cudaMemcpyDeviceToHost));
 
