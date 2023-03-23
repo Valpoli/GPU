@@ -29,7 +29,7 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     }
 }
 
-__global__ void dot2(int n, const float *x, const float *y, float* res)
+__global__ void dot2(int n, const float *x, const float *y, float* res2)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     __shared__ float buffer[block_dim];
@@ -41,7 +41,7 @@ __global__ void dot2(int n, const float *x, const float *y, float* res)
     if (threadIdx.x == 0)
     {
         for (int k = 0; k < block_dim; k++){
-            res[blockIdx.x] += buffer[k];
+            res2[blockIdx.x] += buffer[k];
         }
     }
 }
@@ -91,7 +91,7 @@ int main(int argc, char const *argv[])
     float device_result_dot2 = 0;
     float *res2, *dres2;
     res2 = (float*)malloc(block_count * sizeof(float));
-    CUDA_CHECK(cudaMalloc(&dres2, N * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&dres2, block_count * sizeof(float)));
     CUDA_CHECK(cudaMemcpy(dres2, res2, block_count * sizeof(float), cudaMemcpyHostToDevice));
 
     dot2<<<block_count, block_dim>>>(N,dx,dy,dres2);
