@@ -29,6 +29,23 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     }
 }
 
+__global__ void dot2(int n, const float *x, const float *y, float* res)
+{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    __shared__ float buffer[block_dim];
+    buffer[threadIdx.x] = 0;
+    for (int j = i; j < n; j += block_dim*block_count) {
+        buffer[threadIdx.x] += y[j] * x[j];
+    }
+    __syncthreads();
+    if (threadIdx.x == 0)
+    {
+        for (int k = 0; k < block_dim; k++){
+            res[blockIdx.x] += buffer[k];
+        }
+    }
+}
+
 int main(int argc, char const *argv[])
 {
     const int N = argc >= 2 ? std::stoi(argv[1]) : 1e6;
@@ -70,13 +87,33 @@ int main(int argc, char const *argv[])
     std::cout << "host_expected_result = " << host_expected_result << std::endl;
     std::cout << "device_result = " << device_result << std::endl;
 
+    // DOT 2
+    float device_result_dot2 = 0;
+    float *res2, *dres2;
+    res2 = (float*)malloc(block_count * sizeof(float));
+    CUDA_CHECK(cudaMalloc(&dx, N * sizeof(float)));
+    CUDA_CHECK(cudaMemcpy(dres2, res2, block_count * sizeof(float), cudaMemcpyHostToDevice));
+
+    dot2<<<block_count, block_dim>>>(N,dx,dy,dres2);
+    
+    CUDA_CHECK(cudaMemcpy(res2, dres2, block_count * sizeof(float), cudaMemcpyDeviceToHost));
+
+    int m = 0;
+    while( m < block_count) {
+        device_result_dot2 += res2[m];
+        m += 1;
+    }
+
+    std::cout << "device_result_dot2 = " << device_result_dot2 << std::endl;
 
     cudaFree(dx);
     cudaFree(dy);
     cudaFree(dres);
+    cudaFree(dres2);
     free(x);
     free(y);
     free(res);
+    free(res2);
     
     return 0;
 }
