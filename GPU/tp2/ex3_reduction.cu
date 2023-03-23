@@ -7,8 +7,8 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
     }
 }
 
-constexpr auto block_dim = 2;  // 256 constexpr equivalent to blockDim.x in CUDA kernel
-constexpr auto block_count = 2; // 256 constexpr equivalent to gridDim.x in CUDA kernel
+constexpr auto block_dim = 256;  // constexpr equivalent to blockDim.x in CUDA kernel
+constexpr auto block_count = 256; // constexpr equivalent to gridDim.x in CUDA kernel
 
 
 
@@ -18,14 +18,12 @@ __global__ void dot(int n, const float *x, const float *y, float* res)
     __shared__ float buffer[block_dim];
     for (int j = i; j < n; j += block_dim*block_count) {
         buffer[threadIdx.x] += y[j] * x[j];
-        printf("dans le bloc %d, on fait %f * %f = %f et ainsi le buffer du thread %d = %f \n", blockIdx.x, x[j], y[j], y[j] * x[j], threadIdx.x, buffer[threadIdx.x]);
     }
     __syncthreads();
     if (threadIdx.x == 0)
     {
         for (int k = 0; k < block_dim; k++){
             res[blockIdx.x] += buffer[k];
-            printf("%d est le bloc actuel\n", blockIdx.x);
         }
     }
 }
@@ -48,7 +46,6 @@ int main(int argc, char const *argv[])
         x[i] = 2 * float(std::rand()) / RAND_MAX - 1; // random float in (-1,+1)
         y[i] = 2 * float(std::rand()) / RAND_MAX - 1; // random float in (-1,+1)
         host_expected_result += x[i] * y[i];
-        //printf("on fait la multiplication %f * %f = %f et le total est %f\n",y[i],x[i],y[i] * x[i], host_expected_result);
     }
 
     CUDA_CHECK(cudaMalloc(&dx, N * sizeof(float)));
@@ -63,7 +60,7 @@ int main(int argc, char const *argv[])
     CUDA_CHECK(cudaMemcpy(res, dres, block_count * sizeof(float), cudaMemcpyDeviceToHost));
 
     int m = 0;
-    while( m < 2) {
+    while( m < block_count) {
         printf("%f\n", res[m]);
         device_result += res[m];
         m += 1;
