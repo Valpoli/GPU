@@ -98,7 +98,7 @@ int main(int argc, char const *argv[])
     
     CUDA_CHECK(cudaMemcpy(res2, dres2, block_count * sizeof(float), cudaMemcpyDeviceToHost));
 
-    int m = 0;
+    m = 0;
     while( m < block_count) {
         device_result_dot2 += res2[m];
         m += 1;
