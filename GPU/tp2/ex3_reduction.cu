@@ -91,7 +91,7 @@ int main(int argc, char const *argv[])
     float device_result_dot2 = 0;
     float *res2, *dres2;
     res2 = (float*)malloc(block_count * sizeof(float));
-    CUDA_CHECK(cudaMalloc(&dx, N * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&dres2, N * sizeof(float)));
     CUDA_CHECK(cudaMemcpy(dres2, res2, block_count * sizeof(float), cudaMemcpyHostToDevice));
 
     dot2<<<block_count, block_dim>>>(N,dx,dy,dres2);
