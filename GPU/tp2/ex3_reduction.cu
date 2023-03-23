@@ -10,8 +10,6 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
 constexpr auto block_dim = 256;  // 256 constexpr equivalent to blockDim.x in CUDA kernel
 constexpr auto block_count = 256; // 256 constexpr equivalent to gridDim.x in CUDA kernel
 
-
-
 __global__ void dot(int n, const float *x, const float *y, float* res)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -38,11 +36,17 @@ __global__ void dot2(int n, const float *x, const float *y, float* res2)
         buffer[threadIdx.x] += y[j] * x[j];
     }
     __syncthreads();
+    for (int k = block_dim/2; k >= 1; k/=2)
+    {
+        if (threadIdx.x < k)
+        {
+            buffer[threadIdx.x] += buffer[threadIdx.x+k];
+        }
+        __syncthreads();
+    }
     if (threadIdx.x == 0)
     {
-        for (int k = 0; k < block_dim; k++){
-            res2[blockIdx.x] += buffer[k];
-        }
+        res2[blockIdx.x] = buffer[0];
     }
 }
 
