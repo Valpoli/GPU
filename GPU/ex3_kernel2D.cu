@@ -5,7 +5,8 @@
 #define N 10
 #define M 20
 
-template<typename T> __device__ T* get_ptr(T* start, int i, int j, size_t pitch) {
+template<typename T>
+__device__ T* get_ptr(T* start, int i, int j, size_t pitch) {
     return reinterpret_cast<T*>(reinterpret_cast<char*>(start) + i * pitch + j * sizeof(T));
 }
 
