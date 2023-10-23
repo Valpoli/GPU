@@ -89,11 +89,11 @@ int main(int argc, char const *argv[])
     float* img;
     CUDA_CHECK(cudaMallocPitch(&img, &pitch, N * C * sizeof(float), M));
     dim3 block_dim(32, 32, 1);
-    dim3 grid_dim((M + block_dim.x - 1) / block_dim.x, (N + block_dim.y - 1) / block_dim.y);
+    dim3 grid_dim((N + 32 - 1) / 32, (M + 32 - 1) / 32, 1);
     kernel<<<grid_dim, block_dim>>>(img, N,M,pitch);
-    float* res =(float*) malloc(N * C * M * sizeof(float));
+    float* res =(float*) malloc(M * C * N * sizeof(float));
     CUDA_CHECK(cudaMemcpy2D(res, C * N * sizeof(float), img, pitch, C * N * sizeof(float), M, cudaMemcpyDeviceToHost));
-    image::save("result.jpg", M, N, C, res);
+    image::save("result.jpg", N, M, C, res);
 
     cudaFree(img);
     free(res);
