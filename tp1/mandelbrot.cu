@@ -30,7 +30,6 @@ __device__ void map(int N, int M, int i, int j, float *a, float *b)
 }
 
 
-// #initialser la série a 0 et on itere jusqua voir la convergence
 __device__ bool is_converging(float a, float b)
 {
     float za0 = 0;
@@ -44,8 +43,8 @@ __device__ bool is_converging(float a, float b)
     {
         tempZa = za;
         tempZb = zb;
-        za = za0*za0 - zb0*zb0 + za;
-        zb = 2*za0*zb0 + zb;
+        za = za0*za0 - zb0*zb0 + za0;
+        zb = 2*za0*zb0 + zb0;
         za0 = tempZa;
         zb0 = tempZb;
         i += 1;
