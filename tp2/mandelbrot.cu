@@ -30,7 +30,7 @@ __device__ void map(int N, int M, int i, int j, float *a, float *b)
 }
 
 
-__device__ float is_converging(float a, float b, int i, int j)
+__device__ float is_converging(float a, float b)
 {
     float za0 = 0;
     float zb0 = 0;
@@ -40,7 +40,7 @@ __device__ float is_converging(float a, float b, int i, int j)
     float zb = 0;
     int i = 0;
     float absz = 0;
-    int iter = 100
+    int iter = 100;
     while (i < iter)
     {
         tempZa = za;
@@ -74,7 +74,7 @@ __global__ void kernel (float *img, int N, int M, size_t pitch)
         float *a = (float*) malloc(sizeof(float));
         float *b = (float*) malloc(sizeof(float));
         map(N,M,i,j,a,b);
-        pixel[0] = is_converging(*a,*b, i, j);
+        pixel[0] = is_converging(*a,*b);
         free(a);
         free(b);
     }
