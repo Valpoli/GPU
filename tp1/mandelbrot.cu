@@ -39,12 +39,13 @@ __device__ bool is_converging(float a, float b)
     float za = a;
     float zb = b;
     int i = 0;
+
     while (i < 100)
     {
         tempZa = za;
         tempZb = zb;
-        za = za0*za0 - zb0*zb0 + za0;
-        zb = 2*za0*zb0 + zb0;
+        za = za0*za0 - zb0*zb0 + a;
+        zb = 2*za0*zb0 + b;
         za0 = tempZa;
         zb0 = tempZb;
         i += 1;
