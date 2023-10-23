@@ -64,7 +64,7 @@ __global__ void kernel (float *img, int N, int M, size_t pitch)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int j = blockIdx.y * blockDim.y + threadIdx.y;
-    if (i < M && j < N) {
+    if (i < N && j < M) {
         float *pixel = get_ptr(img,i,j,C,pitch);
         float *a = (float*) malloc(sizeof(float));
         float *b = (float*) malloc(sizeof(float));
