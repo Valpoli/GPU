@@ -1,9 +1,9 @@
 #include "image.h"
 
-Xmax = 1
-Xmin = -2
-Ymax = 1
-Ymin = -1
+const float Xmax = 1
+const float Xmin = -2
+const float Ymax = 1
+const float Ymin = -1
 
 #define CUDA_CHECK(code) { cuda_check((code), __FILE__, __LINE__); }
 inline void cuda_check(cudaError_t code, const char *file, int line) {
@@ -21,8 +21,8 @@ __device__ void map(int N, int M, int i, int j, float *a, float *b)
 {
     int height = Xmax - Xmin;
     int width = Ymax - Ymin;
-    *a = (i/N-1) * height;
-    *b = (j/M-1) * width;
+    *a = (static_cast<float>i/N-1) * height;
+    *b = (static_cast<float>j/M-1) * width;
 }
 
 
