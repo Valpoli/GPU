@@ -1,9 +1,9 @@
 #include "image.h"
 
-const float Xmax = 1
-const float Xmin = -2
-const float Ymax = 1
-const float Ymin = -1
+const float Xmax = 1;
+const float Xmin = -2;
+const float Ymax = 1;
+const float Ymin = -1;
 
 #define CUDA_CHECK(code) { cuda_check((code), __FILE__, __LINE__); }
 inline void cuda_check(cudaError_t code, const char *file, int line) {
@@ -43,7 +43,7 @@ __device__ bool is_converging(float a, float b)
         za = za0^2 - zb0^2;
         zb = 2*za0*zb0;
         za0 = tempZa;
-        zb0 = tempZb
+        zb0 = tempZb;
         i += 1;
     }
     absz = sqrt(za^2+zb^2)
