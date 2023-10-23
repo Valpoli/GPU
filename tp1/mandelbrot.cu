@@ -1,7 +1,7 @@
 #include "image.h"
 
 Xmax = 1
-Xmin = -1
+Xmin = -2
 Ymax = 1
 Ymin = -1
 
@@ -83,7 +83,6 @@ int main(int argc, char const *argv[])
     int M = 960;
     int N = 640;
     int C = 1;
-    float* img = image::load(filename, &N, &M, &C);
     std::cout << "N (columns, width) = " << N << std::endl;
     std::cout << "M (rows, height) = " << M << std::endl;
     std::cout << "C (channels, depth) = " << C << std::endl;
@@ -99,7 +98,7 @@ int main(int argc, char const *argv[])
     dim3 grid_dim((M + block_dim.x - 1) / block_dim.x, (N + block_dim.y - 1) / block_dim.y);
     kernel<<<grid_dim, block_dim>>>(cpy, N,M,pitch);
     
-    float* res = malloc(N * C * sizeof(float))
+    float* res = malloc(N * C * M * sizeof(float))
     // copy device memory back to host memory
     CUDA_CHECK(cudaMemcpy2D(res, C * N * sizeof(float), img, pitch, C * N * sizeof(float), M, cudaMemcpyDeviceToHost));
     image::save("result.jpg", N, M, C, res);
