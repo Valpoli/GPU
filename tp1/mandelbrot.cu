@@ -44,8 +44,8 @@ __device__ bool is_converging(float a, float b)
     {
         tempZa = za;
         tempZb = zb;
-        za = za0*za0 - zb0*zb0;
-        zb = 2*za0*zb0;
+        za = za0*za0 - zb0*zb0 + za;
+        zb = 2*za0*zb0 + zb;
         za0 = tempZa;
         zb0 = tempZb;
         i += 1;
