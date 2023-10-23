@@ -68,7 +68,7 @@ __global__ void kernel (float *img, int N, int M, size_t pitch)
         float *pixel = get_ptr(img,i,j,C,pitch);
         float *a;
         float *b;
-        map(N,M i,j,a,b);
+        map(N,M, i,j,a,b);
         if (is_converging(*a,*b))
         {   
             pixel[0] = 0;
