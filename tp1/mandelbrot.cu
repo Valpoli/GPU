@@ -50,7 +50,7 @@ __device__ bool is_converging(float a, float b)
         zb0 = tempZb;
         i += 1;
     }
-    float absz = sqrt(za^2+zb^2);
+    float absz = sqrt(za*za +zb*zb);
     if (absz < 1)
     {
         return true;
