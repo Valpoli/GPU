@@ -69,14 +69,14 @@ __global__ void kernel (float *img, int N, int M, size_t pitch)
         float *a = (float*) malloc(sizeof(float));
         float *b = (float*) malloc(sizeof(float));
         map(N,M,i,j,a,b);
-        // if (is_converging(*a,*b))
-        // {   
-        //     pixel[0] = 0;
-        // }
-        // else
-        // {
-        //     pixel[0] = 1;
-        // }
+        if (is_converging(*a,*b))
+        {   
+            pixel[0] = 0;
+        }
+        else
+        {
+            pixel[0] = 1;
+        }
         free(a);
         free(b);
     }
