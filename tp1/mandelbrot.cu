@@ -36,8 +36,8 @@ __device__ bool is_converging(float a, float b)
     float zb0 = 0;
     float tempZa = 0;
     float tempZb = 0;
-    float za = a;
-    float zb = b;
+    float za = 0;
+    float zb = 0;
     int i = 0;
 
     while (i < 100)
