@@ -40,7 +40,7 @@ __device__ float is_converging(float a, float b)
     float zb = 0;
     int i = 0;
     float absz = 0;
-    int iter = 100;
+    int iter = 50;
     while (i < iter)
     {
         tempZa = za;
@@ -51,16 +51,12 @@ __device__ float is_converging(float a, float b)
         zb0 = tempZb;
         i += 1;
         absz = sqrt(za*za +zb*zb);
-        if(absz < 1)
+        if(absz > 100)
         {
             break;
         }
     }
-    if (i == iter)
-    {
-        return 1;
-    }
-    return i/iter;
+    return (float)i/iter;
 }
 
 
