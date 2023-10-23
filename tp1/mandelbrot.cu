@@ -5,6 +5,10 @@ const float Xmin = -2;
 const float Ymax = 1;
 const float Ymin = -1;
 
+const int M = 960;
+const int N = 640;
+const int C = 1;
+
 #define CUDA_CHECK(code) { cuda_check((code), __FILE__, __LINE__); }
 inline void cuda_check(cudaError_t code, const char *file, int line) {
     if(code != cudaSuccess) {
@@ -40,13 +44,13 @@ __device__ bool is_converging(float a, float b)
     {
         tempZa = za;
         tempZb = zb;
-        za = za0^2 - zb0^2;
+        za = za0**2 - zb0**2;
         zb = 2*za0*zb0;
         za0 = tempZa;
         zb0 = tempZb;
         i += 1;
     }
-    absz = sqrt(za^2+zb^2);
+    float absz = sqrt(za^2+zb^2);
     if (absz < 1)
     {
         return true;
@@ -61,7 +65,7 @@ __global__ void kernel (float *img, int N, int M, size_t pitch)
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int j = blockIdx.y * blockDim.y + threadIdx.y;
     if (i < M && j < N) {
-        float* pixel = get_ptr(img,i,j,C,pitch);
+        float *pixel = get_ptr(img,i,j,C,pitch);
         float *a;
         float *b;
         map(N,M i,j, a ,b);
@@ -78,10 +82,6 @@ __global__ void kernel (float *img, int N, int M, size_t pitch)
 
 int main(int argc, char const *argv[])
 {
-    int M = 960;
-    int N = 640;
-    int C = 1;
-
     size_t pitch;
 
     float* img;
