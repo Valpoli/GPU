@@ -21,8 +21,8 @@ __device__ void map(int N, int M, int i, int j, float *a, float *b)
 {
     int height = Xmax - Xmin;
     int width = Ymax - Ymin;
-    *a = (static_cast<float>i/N-1) * height;
-    *b = (static_cast<float>j/M-1) * width;
+    *a = (i/N-1) * height;
+    *b = (j/M-1) * width;
 }
 
 
@@ -32,7 +32,7 @@ __device__ bool is_converging(float a, float b)
     float za0 = 0;
     float zb0 = 0;
     float tempZa = 0;
-    float tempZb = 0
+    float tempZb = 0;
     float za = a;
     float zb = b;
     int i = 0;
@@ -46,7 +46,7 @@ __device__ bool is_converging(float a, float b)
         zb0 = tempZb;
         i += 1;
     }
-    absz = sqrt(za^2+zb^2)
+    absz = sqrt(za^2+zb^2);
     if (absz < 1)
     {
         return true;
@@ -78,14 +78,9 @@ __global__ void kernel (float *img, int N, int M, size_t pitch)
 
 int main(int argc, char const *argv[])
 {
-    const std::string filename = argc >= 2 ? argv[1] : "image.jpg";
-    std::cout << "filename = " << filename << std::endl;
     int M = 960;
     int N = 640;
     int C = 1;
-    std::cout << "N (columns, width) = " << N << std::endl;
-    std::cout << "M (rows, height) = " << M << std::endl;
-    std::cout << "C (channels, depth) = " << C << std::endl;
 
     size_t pitch;
 
