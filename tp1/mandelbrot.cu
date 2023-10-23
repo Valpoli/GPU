@@ -89,7 +89,7 @@ int main(int argc, char const *argv[])
     size_t pitch;
 
     float* img;
-    CUDA_CHECK(cudaMallocPitch(&cpy, &pitch, N * C * sizeof(float), M));
+    CUDA_CHECK(cudaMallocPitch(&img, &pitch, N * C * sizeof(float), M));
     // CUDA_CHECK(cudaMemcpy2D(cpy, pitch, img, N * C * sizeof(float), N * C * sizeof(float), M, cudaMemcpyHostToDevice));
     
     // launch kernel
@@ -102,8 +102,8 @@ int main(int argc, char const *argv[])
     CUDA_CHECK(cudaMemcpy2D(res, C * N * sizeof(float), img, pitch, C * N * sizeof(float), M, cudaMemcpyDeviceToHost));
     image::save("result.jpg", N, M, C, res);
 
-    free(res);
     cudaFree(img);
+    free(res);
 
     return 0;
 }
