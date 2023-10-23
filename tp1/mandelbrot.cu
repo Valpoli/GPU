@@ -77,6 +77,8 @@ __global__ void kernel (float *img, int N, int M, size_t pitch)
         // {
         //     pixel[0] = 1;
         // }
+        free(a)
+        free(b)
     }
 }
 
