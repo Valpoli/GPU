@@ -55,7 +55,7 @@ __device__ float is_converging(float a, float b)
     {
         return absz;
     }
-    return 1/;
+    return 1;
 }
 
 
