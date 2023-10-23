@@ -89,7 +89,7 @@ int main(int argc, char const *argv[])
     dim3 block_dim(32, 32, 1);
     dim3 grid_dim((M + block_dim.x - 1) / block_dim.x, (N + block_dim.y - 1) / block_dim.y);
     kernel<<<grid_dim, block_dim>>>(img, N,M,pitch);
-    float* res = malloc(N * C * M * sizeof(float));
+    float* res =(float*) malloc(N * C * M * sizeof(float));
     CUDA_CHECK(cudaMemcpy2D(res, C * N * sizeof(float), img, pitch, C * N * sizeof(float), M, cudaMemcpyDeviceToHost));
     image::save("result.jpg", N, M, C, res);
 
