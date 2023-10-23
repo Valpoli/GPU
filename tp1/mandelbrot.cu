@@ -66,19 +66,17 @@ __global__ void kernel (float *img, int N, int M, size_t pitch)
     int j = blockIdx.y * blockDim.y + threadIdx.y;
     if (i < M && j < N) {
         float *pixel = get_ptr(img,i,j,C,pitch);
-        float *a;
-        float *b;
+        // float *a;
+        // float *b;
         // map(N,M,i,j,a,b);
-        *a = 0;
-        *b = 0;
-        if (is_converging(*a,*b))
-        {   
-            pixel[0] = 0;
-        }
-        else
-        {
-            pixel[0] = 1;
-        }
+        // if (is_converging(*a,*b))
+        // {   
+        //     pixel[0] = 0;
+        // }
+        // else
+        // {
+        //     pixel[0] = 1;
+        // }
     }
 }
 
