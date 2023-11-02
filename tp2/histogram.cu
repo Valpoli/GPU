@@ -16,8 +16,8 @@ void complet_hist_cpu(float *img, int N, int M, int C, int *hist)
         float pixel = img[i];
         if (pixel < 1)
         {
-            int idx = pixel * BINS
-            ++ hist[idx]
+            int idx = pixel * BINS;
+            ++ hist[idx];
         }
     }
 }
@@ -28,13 +28,11 @@ int main()
     float* img = image::load("mandelbrot.jpg", &N, &M, &C, 1);
     const int size = N * M * C;
 
-    int *hist = (int) malloc(sizeof(int) * BINS);
+    int hist[32] = {0};
     complet_hist_cpu(img, N, M, C, hist);
-    for (int i = 0; i < N * M * C; ++i)
+    for (int i = 0; i < BINS; ++i)
     {
-        cout << hist[i] << endl;
+        printf("%d\n",hist[i]);
     }
-    free(hist)
-
     return 0;
 }
