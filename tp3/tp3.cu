@@ -1,5 +1,5 @@
 #include <vector>
-#include <random>
+//#include <random>
 #include <algorithm>
 // #include <random>
 
@@ -81,7 +81,7 @@ int main()
         {13, 14, 15, 16, 17, 18},
         {19, 20, 21, 22, 23, 24}
     };
-
+    printf("%d\n",index1(4, 6, 4, 6));
     printf("%d\n",matrice[index1(0, 0, 4, 6)]);
 
     // int threads_per_block = 6;
