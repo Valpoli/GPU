@@ -38,7 +38,6 @@ float max_abs_diff(const std::vector<float>& A, const std::vector<float>& B)
 // return the 1D index of a row-major matrix of size (rows,cols) from indices (i,j)
 __host__ __device__ int index1(int i, int j, int rows, int cols)
 {
-    printf("%d %d %d %d\n",i,j,rows,cols);
     return (j + i * cols);
 }
 
@@ -52,13 +51,10 @@ std::vector<float> matmul_cpu(const std::vector<float>& A, const std::vector<flo
         for (int j = 0; j < P; ++j) {
 	    int indexRes = index1(i,j,N,P);
 	    res[indexRes] = 0;
-	    printf("\n");
             for (int k = 0; k < M; ++k) {
                 int indexA = index1(i,k,N,M);
                 int indexB = index1(k,j,M,P);
                 res[indexRes] += A[indexA] * B[indexB];
-		printf("%f , %f\n",indexA, indexB);
-		printf("%f * %f = %f \n",A[indexA],B[indexB],res[indexRes]);
             }
         }
     }
@@ -94,32 +90,43 @@ int main()
     // int threads_per_block = P;
     // int block_count = M;
 
-    std::vector<float> testA = make_matrix(2,2);
-    std::vector<float> testB = make_matrix(2,2);
- 
-    float testa[] = {1, 2, 3, 4};
-    float testb[] = {5,6,0,7};
+    std::vector<float> testA = make_matrix(2,3);
+    std::vector<float> testB = make_matrix(3,4);
 
-    for (int i = 0; i < 4; i++)
+    float testa[] = {2,1,4,0,1,1};
+    float testb[] = {6,3,-1,0,1,1,0,4,-2,5,0,2};
+
+    for (int i = 0; i < 6; i++)
     {
         testA[i] = testa[i];
     }
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 12; i++)
     {
         testB[i] = testb[i];
     }
 
-    const int N1 = 2;
-    const int M1 = 2;
-    const int P1 = 2;
-    const std::vector<float> res = matmul_cpu(testA,testB,N1,M1,P1);
+    std::cout << "Matrix A:" << std::endl;
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 3; j++) {
+            std::cout << testA[index1(i,j,2,3)] << " ";
+        }
+        std::cout << std::endl;
+    }
 
-    printf("%f\n",testA[0]);
+    std::cout << "Matrix B:" << std::endl;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++) {
+            std::cout << testB[index1(i,j,3,4)] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    const std::vector<float> res = matmul_cpu(testA,testB,2,3,4);
 
     std::cout << "res:" << std::endl;
-    for (int i = 0; i < N1; i++) {
-        for (int j = 0; j < P1; j++) {
-            std::cout << res[index1(i,j,2,2)] << " ";
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 4; j++) {
+            std::cout << res[index1(i,j,2,4)] << " ";
         }
         std::cout << std::endl;
     }
