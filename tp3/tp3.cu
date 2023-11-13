@@ -2,6 +2,7 @@
 //#include <random>
 #include <algorithm>
 // #include <random>
+#include <iostream>
 
 #include "make_matrix.h"
 #include <stdio.h>
