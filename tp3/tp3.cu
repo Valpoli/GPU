@@ -66,17 +66,28 @@ std::vector<float> matmul_cpu(const std::vector<float>& A, const std::vector<flo
 // return the 1D index of a row-major matrix of size (rows,cols) from indices (i,j) inside sub-matrix (bi,bj)
 __device__ int index2(int i, int j, int bi, int bj, int rows, int cols)
 {
-    // ...
+    int i_res = bi * rows + i;
+    int j_res = bj * cols + j;
+    return (j_res + i_res * cols);
 }
 
-// __global__ matmul cpu(float *d_img, int size, int *d_hist)
-// {
-//     int i = blockIdx.x * blockDim.x + threadIdx.x;
-//     int j = blockIdx.y * blockDim.y + threadIdx.y;
-//     if (i < N && j < M) {
+__global__ void matmul1(float *d_A, float *d_B, float *d_C, int N, int M, int P)
+{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
 
-//     }
-// }
+    if (i < N && j < P) {
+        float result = 0.0f;
+
+        for (int k = 0; k < M; ++k) {
+            float element_A = d_A[index2(i, k, blockIdx.x, blockIdx.y, N, M)];
+            float element_B = d_B[index2(k, j, blockIdx.x, blockIdx.y, M, P)];
+            result += element_A * element_B;
+        }
+
+        d_C[index2(i, j, blockIdx.x, blockIdx.y, N, P)] = result;
+    }
+}
 
 
 int main()
@@ -87,49 +98,38 @@ int main()
     const int M = 19 * BLOCK_SIZE;
     const int P = 12 * BLOCK_SIZE;
 
-    // int threads_per_block = P;
-    // int block_count = M;
+    const dim3 threads_per_block(BLOCK_SIZE,BLOCK_SIZE,1);
+    const dim3 blocks((N + BLOCK_SIZE -1)/BLOCK_SIZE, (P + BLOCK_SIZE -1)/BLOCK_SIZE, 1);
 
-    std::vector<float> testA = make_matrix(2,3);
-    std::vector<float> testB = make_matrix(3,4);
+    std::vector<float> A = make_matrix(N,M);
+    std::vector<float> B = make_matrix(M,P);
+    std::vector<float> C = matmul_cpu(A,B,N,M,P);
 
-    float testa[] = {2,1,4,0,1,1};
-    float testb[] = {6,3,-1,0,1,1,0,4,-2,5,0,2};
 
-    for (int i = 0; i < 6; i++)
-    {
-        testA[i] = testa[i];
-    }
-    for (int i = 0; i < 12; i++)
-    {
-        testB[i] = testb[i];
-    }
+    float *d_A;
+    float *d_B;
+    float *d_C;
+    float *C_GPU = (float*) malloc(sizeof(float) * N * P);
 
-    std::cout << "Matrix A:" << std::endl;
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 3; j++) {
-            std::cout << testA[index1(i,j,2,3)] << " ";
-        }
-        std::cout << std::endl;
-    }
+    cudaMalloc(&d_A, N * M * sizeof(float));
+    cudaMalloc(&d_B, M * P * sizeof(float));
+    cudaMalloc(&d_C, N * P * sizeof(float));
+    cudaMemcpy(d_A, A.data(), N * M * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, B.data(), M * P * sizeof(float), cudaMemcpyHostToDevice);
 
-    std::cout << "Matrix B:" << std::endl;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 4; j++) {
-            std::cout << testB[index1(i,j,3,4)] << " ";
-        }
-        std::cout << std::endl;
+    matmul1<<blocks,threads_per_block>>(d_A,d_B,d_C, N, M, P)
+
+    cudaMemcpy(C_GPU, d_C, N * P * sizeof(float), cudaMemcpyDeviceToHost);
+
+    std::vector<float> res = make_matrix(N,P);;
+
+    for (int i = 0; i < N * P; ++k) {
+        res[i] = C_GPU[i];
     }
 
-    const std::vector<float> res = matmul_cpu(testA,testB,2,3,4);
+    float test = max_abs_diff(res, C);
 
-    std::cout << "res:" << std::endl;
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 4; j++) {
-            std::cout << res[index1(i,j,2,4)] << " ";
-        }
-        std::cout << std::endl;
-    }
+    printf("%f\n", test);
 
     return 0;
 }
