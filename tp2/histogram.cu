@@ -17,7 +17,7 @@ __global__ void complet_hist_cpu(float *d_img, int size, int *d_hist)
         for (int i = 0; i < size ; ++i)
         {
 
-            float pixel = img[i];
+            float pixel = d_img[i];
             if (pixel < 1)
             {
                 int idx = pixel * BINS;
@@ -41,7 +41,7 @@ int main()
     int N, M, C;
     float* img = image::load("mandelbrot.jpg", &N, &M, &C, 1);
     const int size = N * M * C;
-    int threads_per_block = 16
+    int threads_per_block = 16;
     int block_count = (size + threads_per_block - 1)/ threads_per_block;
 
     float *d_img;
@@ -50,7 +50,7 @@ int main()
 
     int *d_hist;
     cudaMalloc(&d_hist, BINS * block_count * sizeof(int));
-    cudaMemset(d_hist, 0, BINS * block_count * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemset(d_hist, 0, BINS * block_count * sizeof(int));
 
     complet_hist_cpu<<<block_count, threads_per_block>>>(d_img,size,d_hist);
     add_hist<<<1, BINS>>>(d_hist,block_count);
