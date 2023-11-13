@@ -45,7 +45,18 @@ __host__ __device__ int index1(int i, int j, int rows, int cols)
 // perform matrix multiplication C = A * B on the CPU
 std::vector<float> matmul_cpu(const std::vector<float>& A, const std::vector<float>& B, int N, int M, int P)
 {
-    // ...
+    std::vector<float> res(M * P, 0.0f);
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < P; ++j) {
+            for (int k = 0; k < M; ++k) {
+                int indexRes = index1(i,j,M,P);
+                int indexA = index1(i,k,N,M);
+                int indexB = index1(k,j,M,P);
+                res[indexRes] += A[i][k] * B[k][j];
+            }
+        }
+    }
+    return res;
 }
 
 
@@ -56,8 +67,7 @@ __device__ int index2(int i, int j, int bi, int bj, int rows, int cols)
     // ...
 }
 
-
-// __global__ void test_mat(float *d_img, int size, int *d_hist)
+// __global__ matmul cpu(float *d_img, int size, int *d_hist)
 // {
 //     int i = blockIdx.x * blockDim.x + threadIdx.x;
 //     int j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -75,21 +85,17 @@ int main()
     const int M = 19 * BLOCK_SIZE;
     const int P = 12 * BLOCK_SIZE;
 
-    int matrice[4][6] = {
-        {1, 2, 3, 4, 5, 6},
-        {7, 8, 9, 10, 11, 12},
-        {13, 14, 15, 16, 17, 18},
-        {19, 20, 21, 22, 23, 24}
-    };
-    printf("%d\n",index1(4, 6, 4, 6));
-    printf("%d\n",matrice[index1(0, 0, 4, 6)]);
-
-    // int threads_per_block = 6;
-    // int block_count = 4;
-
+    int threads_per_block = P;
+    int block_count = M;
 
     const std::vector<float> A = make_matrix(N,M);
     const std::vector<float> B = make_matrix(M,P);
+
+    const std::vector<float> res = matmul_cpu(A,B,N,M,P)
+
+    for (int i = 0; i < M*P; ++i) {
+        printf("%f\n", res[i]);
+    }
 
     return 0;
 }
