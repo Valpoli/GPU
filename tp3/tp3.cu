@@ -38,7 +38,8 @@ float max_abs_diff(const std::vector<float>& A, const std::vector<float>& B)
 // return the 1D index of a row-major matrix of size (rows,cols) from indices (i,j)
 __host__ __device__ int index1(int i, int j, int rows, int cols)
 {
-    return (int) (j + i * cols);
+    printf("%d %d %d %d\n",i,j,rows,cols);
+    return (j + i * cols);
 }
 
 
@@ -46,14 +47,18 @@ __host__ __device__ int index1(int i, int j, int rows, int cols)
 // perform matrix multiplication C = A * B on the CPU
 std::vector<float> matmul_cpu(const std::vector<float>& A, const std::vector<float>& B, int N, int M, int P)
 {
-    std::vector<float> res(M * P, 0.0f);
+    std::vector<float> res = make_matrix(N,P);
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < P; ++j) {
+	    int indexRes = index1(i,j,N,P);
+	    res[indexRes] = 0;
+	    printf("\n");
             for (int k = 0; k < M; ++k) {
-                int indexRes = index1(i,j,M,P);
                 int indexA = index1(i,k,N,M);
                 int indexB = index1(k,j,M,P);
                 res[indexRes] += A[indexA] * B[indexB];
+		printf("%f , %f\n",indexA, indexB);
+		printf("%f * %f = %f \n",A[indexA],B[indexB],res[indexRes]);
             }
         }
     }
@@ -91,15 +96,15 @@ int main()
 
     std::vector<float> testA = make_matrix(2,2);
     std::vector<float> testB = make_matrix(2,2);
-
+ 
     float testa[] = {1, 2, 3, 4};
     float testb[] = {5,6,0,7};
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 4; i++)
     {
         testA[i] = testa[i];
     }
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 4; i++)
     {
         testB[i] = testb[i];
     }
@@ -108,6 +113,8 @@ int main()
     const int M1 = 2;
     const int P1 = 2;
     const std::vector<float> res = matmul_cpu(testA,testB,N1,M1,P1);
+
+    printf("%f\n",testA[0]);
 
     std::cout << "res:" << std::endl;
     for (int i = 0; i < N1; i++) {
