@@ -2,7 +2,7 @@
 #include <random>
 #include <algorithm>
 
-#include <stdio.h>
+// #include <stdio.h>
 
 #define BLOCK_SIZE 16
 
@@ -82,16 +82,12 @@ int main()
 
     printf("%d\n",matrice[index1(0, 0, 4, 6)]);
 
-    int threads_per_block = 6;
-    int block_count = 4;
+    // int threads_per_block = 6;
+    // int block_count = 4;
 
 
     const std::vector<float> A = make_matrix(N,M);
     const std::vector<float> B = make_matrix(M,P);
-
-    // ...
-
-    // kernel<<<grid_dim, block_dim>>>(img, N,M,pitch);
 
     return 0;
 }
