@@ -85,16 +85,35 @@ int main()
     const int M = 19 * BLOCK_SIZE;
     const int P = 12 * BLOCK_SIZE;
 
-    int threads_per_block = P;
-    int block_count = M;
+    // int threads_per_block = P;
+    // int block_count = M;
 
-    const std::vector<float> A = make_matrix(N,M);
-    const std::vector<float> B = make_matrix(M,P);
+    std::vector<float> testA = make_matrix(2,2);
+    std::vector<float> testB = make_matrix(2,2);
 
-    const std::vector<float> res = matmul_cpu(A,B,N,M,P);
+    float testa[2][2] = {1, 2, 3, 4};
+    float testb[2,2] = {5,6,0,7};
 
-    for (int i = 0; i < M*P; ++i) {
-        printf("%f\n", res[i]);
+    for (int i = 0; i < 6; i++)
+    {
+        testA[i] = testa[i];
+    }
+    for (int i = 0; i < 12; i++)
+    {
+        testB[i] = testb[i];
+    }
+
+    const int N1 = 2;
+    const int M1 = 2;
+    const int P1 = 2;
+    const std::vector<float> res = matmul_cpu(testA,testB,N1,M1,P1);
+
+    std::cout << "res:" << std::endl;
+    for (int i = 0; i < N1; i++) {
+        for (int j = 0; j < P1; j++) {
+            std::cout << res[index1(i,j,2,2)] << " ";
+        }
+        std::cout << std::endl;
     }
 
     return 0;
