@@ -52,7 +52,7 @@ std::vector<float> matmul_cpu(const std::vector<float>& A, const std::vector<flo
                 int indexRes = index1(i,j,M,P);
                 int indexA = index1(i,k,N,M);
                 int indexB = index1(k,j,M,P);
-                res[indexRes] += A[i][k] * B[k][j];
+                res[indexRes] += A[indexA] * B[indexB];
             }
         }
     }
@@ -91,7 +91,7 @@ int main()
     const std::vector<float> A = make_matrix(N,M);
     const std::vector<float> B = make_matrix(M,P);
 
-    const std::vector<float> res = matmul_cpu(A,B,N,M,P)
+    const std::vector<float> res = matmul_cpu(A,B,N,M,P);
 
     for (int i = 0; i < M*P; ++i) {
         printf("%f\n", res[i]);
