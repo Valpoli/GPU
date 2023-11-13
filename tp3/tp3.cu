@@ -91,14 +91,14 @@ int main()
     std::vector<float> testA = make_matrix(2,2);
     std::vector<float> testB = make_matrix(2,2);
 
-    float testa[2][2] = {1, 2, 3, 4};
-    float testb[2,2] = {5,6,0,7};
+    float testa[] = {1, 2, 3, 4};
+    float testb[] = {5,6,0,7};
 
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 2; i++)
     {
         testA[i] = testa[i];
     }
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 2; i++)
     {
         testB[i] = testb[i];
     }
