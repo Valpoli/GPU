@@ -80,12 +80,12 @@ __global__ void matmul1(float *d_A, float *d_B, float *d_C, int N, int M, int P)
         float result = 0.0f;
 
         for (int k = 0; k < M; ++k) {
-            float element_A = d_A[index2(i, k, blockIdx.x, blockIdx.y, N, M)];
-            float element_B = d_B[index2(k, j, blockIdx.x, blockIdx.y, M, P)];
+            float element_A = d_A[index1(i, k, N, M)];
+            float element_B = d_B[index1(k, j, M, P)];
             result += element_A * element_B;
         }
 
-        d_C[index2(i, j, blockIdx.x, blockIdx.y, N, P)] = result;
+        d_C[index1(i, j, N, P)] = result;
     }
 }
 
@@ -117,13 +117,13 @@ int main()
     cudaMemcpy(d_A, A.data(), N * M * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(d_B, B.data(), M * P * sizeof(float), cudaMemcpyHostToDevice);
 
-    matmul1<<blocks,threads_per_block>>(d_A,d_B,d_C, N, M, P)
+    matmul1<<<blocks,threads_per_block>>>(d_A,d_B,d_C, N, M, P);
 
     cudaMemcpy(C_GPU, d_C, N * P * sizeof(float), cudaMemcpyDeviceToHost);
 
-    std::vector<float> res = make_matrix(N,P);;
+    std::vector<float> res = make_matrix(N,P);
 
-    for (int i = 0; i < N * P; ++k) {
+    for (int i = 0; i < N * P; ++i) {
         res[i] = C_GPU[i];
     }
 
