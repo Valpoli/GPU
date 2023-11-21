@@ -24,7 +24,7 @@ std::vector<int> scan_exclu(std::vector<int> table)
 
 __global__ void scan1(int* x, int N)
 {
-    __shared__ int buffers[2*N];
+    __shared__ int buffers[2*STATIC_SIZE];
     int in = 0;
     int out = N;
     int i = threadIdx.x;
@@ -36,19 +36,19 @@ __global__ void scan1(int* x, int N)
     }
     else
     {
-        int step = (int) log2(N);
+        int step = (int) log2(static_cast<float>(N));
         for (int n = 0; n < step; ++n)
         {
-            offset = 2^step ;
+            int offset = 2^step ;
             if (offset <= i)
             {
-                buffers[i + out] = buffer[i + in] + buffer[i + in - offset];
+                buffers[i + out] = buffers[i + in] + buffers[i + in - offset];
             }
             else
             {
-                buffers[i + out] = buffer[i + in];
+                buffers[i + out] = buffers[i + in];
             }
-            syncthreads();
+            __syncthreads();
             int temp = in;
             in = out;
             out = in;
