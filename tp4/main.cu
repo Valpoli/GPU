@@ -29,21 +29,19 @@ __global__ void scan1(int* x, int N)
     int out = N;
     int i = threadIdx.x;
     buffers[i] = x[i];
+    printf("thread numero %d\n",i);
     __syncthreads();
-    if (i == 0)
+    int step = (int) log2(static_cast<float>(N));
+    for (int n = 0; n < step; n++)
     {
-        x[i] = 0;
-    }
-    else
-    {
-        int step = (int) log2(static_cast<float>(N));
-        for (int n = 0; n < step; ++n)
+       int offset = pow(2,n) ;
+       printf("buff in : %d\n", buffers[i + in]);
+        printf("buff in : %d\n", buffers[i + in - offset]);
+          printf("%d step\n", step);
+       if (offset <= i)
         {
-            int offset = 2^step ;
-            if (offset <= i)
-            {
-                buffers[i + out] = buffers[i + in] + buffers[i + in - offset];
-            }
+            buffers[i + out] = buffers[i + in] + buffers[i + in - offset];
+         }
             else
             {
                 buffers[i + out] = buffers[i + in];
@@ -52,8 +50,13 @@ __global__ void scan1(int* x, int N)
             int temp = in;
             in = out;
             out = in;
+            printf("n %d \n",n);
         }
-        x[i] = buffers[i + out];
+        printf("yop\n");
+        if (i==0)
+        x[i] = 0;
+        else
+        x[i] = buffers[i + in -1];
     }
 }
 
@@ -64,11 +67,11 @@ int main()
     // srand(time(nullptr));
 
     constexpr int N = STATIC_SIZE;
+    int size_test = 8;
     // const std::vector<int> x = make_vector(N);
-    const dim3 threads_per_block(size_test,size_test,1);
+    const dim3 threads_per_block(size_test,1,1);
     const dim3 blocks(1,1,1);
 
-    int size_test = 8;
     std::vector<int> test = {3,2,5,6,8,7,4,1};
     std::cout << "Contenu du vecteur :";
     for (int value : test) {
@@ -80,7 +83,7 @@ int main()
     cudaMalloc(&d_x, size_test * sizeof(int));
     cudaMemcpy(d_x, test.data(), size_test * sizeof(int), cudaMemcpyHostToDevice);
     scan1<<<blocks,threads_per_block>>>(d_x, N);
-    int *x = (int*) malloc(size_test * sizeof(int))
+    int *x = (int*) malloc(size_test * sizeof(int));
     cudaMemcpy(x, d_x, size_test * sizeof(int), cudaMemcpyDeviceToHost);
 
     std::cout << "Contenu du vecteur :";
@@ -89,6 +92,6 @@ int main()
     }
     std::cout << std::endl;
     free(x);
-    cudaFree(d_x);
+    
     return 0;
 }
