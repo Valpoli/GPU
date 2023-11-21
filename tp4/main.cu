@@ -39,7 +39,7 @@ __global__ void scan1(int* x, int N)
         int step = (int) log2(static_cast<float>(N));
         for (int n = 0; n < step; ++n)
         {
-            int offset = 2^step ;
+            int offset = pow(2, n) ;
             if (offset <= i)
             {
                 buffers[i + out] = buffers[i + in] + buffers[i + in - offset];
@@ -65,7 +65,7 @@ int main()
 
     constexpr int N = STATIC_SIZE;
     // const std::vector<int> x = make_vector(N);
-    const dim3 threads_per_block(size_test,size_test,1);
+    const dim3 threads_per_block(size_test,1,1);
     const dim3 blocks(1,1,1);
 
     int size_test = 8;
