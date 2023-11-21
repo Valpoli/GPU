@@ -34,15 +34,7 @@ int main()
     const std::vector<int> x = make_vector(N);
 
     int size_test = 8;
-    std::vector<int> test = make_vector(size_test);
-    test[0] = 3;
-    test[1] = 2;
-    test[2] = 5;
-    test[3] = 6;
-    test[4] = 8;
-    test[5] = 7;
-    test[6] = 4;
-    test[7] = 1;
+    std::vector<int> test = {3,2,5,6,8,7,4,1};
     std::vector<int> test_exclu = scan_exclu(test);
     std::cout << "Contenu du vecteur :";
     for (int value : test_exclu) {
