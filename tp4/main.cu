@@ -24,7 +24,7 @@ std::vector<int> scan_exclu(std::vector<int> table)
 
 __global__ void scan1(int* x, int N)
 {
-    __shared__ int buffers[2*STATIC_SIZE];
+    __shared__ int buffers[2*8];
     int in = 0;
     int out = N;
     int i = threadIdx.x;
@@ -64,15 +64,31 @@ int main()
     // srand(time(nullptr));
 
     constexpr int N = STATIC_SIZE;
-    const std::vector<int> x = make_vector(N);
+    // const std::vector<int> x = make_vector(N);
+    const dim3 threads_per_block(size_test,size_test,1);
+    const dim3 blocks(1,1,1);
 
     int size_test = 8;
     std::vector<int> test = {3,2,5,6,8,7,4,1};
-    std::vector<int> test_exclu = scan_exclu(test);
     std::cout << "Contenu du vecteur :";
-    for (int value : test_exclu) {
+    for (int value : test) {
         std::cout << " " << value;
     }
     std::cout << std::endl;
+    // std::vector<int> test_exclu = scan_exclu(test);
+    int* d_x;
+    cudaMalloc(&d_x, size_test * sizeof(int));
+    cudaMemcpy(d_x, test.data(), size_test * sizeof(int), cudaMemcpyHostToDevice);
+    scan1<<<blocks,threads_per_block>>>(d_x, N);
+    int *x = (int*) malloc(size_test * sizeof(int))
+    cudaMemcpy(x, d_x, size_test * sizeof(int), cudaMemcpyDeviceToHost);
+
+    std::cout << "Contenu du vecteur :";
+    for (int n = 0; n < size_test; ++n){
+        std::cout << " " << x[n];
+    }
+    std::cout << std::endl;
+    free(x);
+    cudaFree(d_x);
     return 0;
 }
