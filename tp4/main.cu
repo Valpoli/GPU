@@ -62,13 +62,12 @@ __global__ void scan1(int* x, int N)
 int main()
 {
     // srand(time(nullptr));
-
+    int size_test = 8;
     constexpr int N = STATIC_SIZE;
     // const std::vector<int> x = make_vector(N);
     const dim3 threads_per_block(size_test,1,1);
     const dim3 blocks(1,1,1);
 
-    int size_test = 8;
     std::vector<int> test = {3,2,5,6,8,7,4,1};
     std::cout << "Contenu du vecteur :";
     for (int value : test) {
@@ -80,7 +79,7 @@ int main()
     cudaMalloc(&d_x, size_test * sizeof(int));
     cudaMemcpy(d_x, test.data(), size_test * sizeof(int), cudaMemcpyHostToDevice);
     scan1<<<blocks,threads_per_block>>>(d_x, N);
-    int *x = (int*) malloc(size_test * sizeof(int))
+    int *x = (int*) malloc(size_test * sizeof(int));
     cudaMemcpy(x, d_x, size_test * sizeof(int), cudaMemcpyDeviceToHost);
 
     std::cout << "Contenu du vecteur :";
