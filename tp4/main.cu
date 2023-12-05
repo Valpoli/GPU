@@ -24,37 +24,40 @@ std::vector<int> scan_exclu(std::vector<int> table)
 
 __global__ void scan1(int* x, int N)
 {
-    __shared__ int buffers[2*8];
-    int in = 0;
-    int out = N;
-    int i = threadIdx.x;
-    buffers[i] = x[i];
-    __syncthreads();
-    if (i == 0)
-    {
-        x[i] = 0;
-    }
-    else
-    {
-        int step = (int) log2(static_cast<float>(N));
-        for (int n = 0; n < step; ++n)
-        {
-            int offset = pow(2, n) ;
-            if (offset <= i)
-            {
-                buffers[i + out] = buffers[i + in] + buffers[i + in - offset];
-            }
-            else
-            {
-                buffers[i + out] = buffers[i + in];
-            }
-            __syncthreads();
-            int temp = in;
-            in = out;
-            out = in;
-        }
-        x[i] = buffers[i + out];
-    }
+	__shared__ int buffer[2*8];
+	
+	int in = 0;
+	int out = N;
+
+	int i = threadIdx.x;
+
+	buffer[i] = x[i];
+
+	__syncthreads();
+
+	int step = (int) log2f(static_cast<float>(N));
+
+	for (int n = 0; n < step; n++)
+	{
+		int offset = pow(2, n);
+		if (offset <= i)
+		{
+			buffer[i + out] = buffer[i + in] + buffer[i - offset + in]; 
+		}
+		else
+		{
+			buffer[i + out] = buffer[i + in];
+		}
+		
+		__syncthreads();
+		int temp = in;
+		in = out;
+		out = temp;	
+	}
+	if (i == 0)
+		x[i] = 0;
+	else
+		x[i] = buffer[in + i - 1];
 }
 
 
