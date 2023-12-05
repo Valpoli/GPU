@@ -1,5 +1,7 @@
 #include "make_vector.h"
+
 #include <iostream>
+#include <stdio.h>
 
 #define STATIC_SIZE 64
 
@@ -10,28 +12,22 @@ inline void cuda_check(cudaError_t code, const char *file, int line) {
     }
 }
 
-std::vector<int> scan_exclu(std::vector<int> table)
+
+std::vector<int> scan_exclusif(std::vector<int> vec)
 {
-    std::size_t size = table.size();
-    std::vector<int> res = make_vector((int) size);
-    res[0] = 0;
-    for (std::size_t i = 1; i < size; ++i)
-    {
-        res[i] = res[i-1] + table[i-1];
-    }
-    return res;
+	std::vector<int> res(vec.size());
+	res[0] = 0;
+	for (int i = 1; i < vec.size(); i++)
+	{
+		res[i] = res[i-1] + vec[i-1];
+	}
+
+	return res;
 }
 
 __global__ void scan1(int* x, int N)
 {
-	__shared__ int buffer[2*8];
-	
-	int in = 0;
-	int out = N;
-
 	int i = threadIdx.x;
-
-	buffer[i] = x[i];
 
 	__syncthreads();
 
@@ -40,57 +36,44 @@ __global__ void scan1(int* x, int N)
 	for (int n = 0; n < step; n++)
 	{
 		int offset = pow(2, n);
-		if (offset <= i)
-		{
-			buffer[i + out] = buffer[i + in] + buffer[i - offset + in]; 
-		}
-		else
-		{
-			buffer[i + out] = buffer[i + in];
-		}
-		
-		__syncthreads();
-		int temp = in;
-		in = out;
-		out = temp;	
-	}
-	if (i == 0)
-		x[i] = 0;
-	else
-		x[i] = buffer[in + i - 1];
-}
 
+		if ( n == 0 || i <= (8/2)/(2*n) )
+		{
+			int index = i + (n * 2 - 1) + offset;
+			x[index] = x[index] + x[index - offset]; 
+		}
+		__syncthreads();
+	}
+}
 
 
 int main()
 {
-    // srand(time(nullptr));
-    int size_test = 8;
-    constexpr int N = STATIC_SIZE;
-    // const std::vector<int> x = make_vector(N);
-    const dim3 threads_per_block(size_test,1,1);
-    const dim3 blocks(1,1,1);
+	std::vector<int> vector1 = {3, 2, 5, 6, 8, 7, 4, 1};
+	std::vector<int> res = scan_exclusif(vector1);
+	for (int i = 0; i < res.size() ; i++)
+	{
+		std::cout << res[i] << " ";
+	}
+	std::cout << std::endl;
+	int *d_x;
+	int *x = (int*) malloc(sizeof(int) *8);
+	CUDA_CHECK(cudaMalloc(&d_x, 8 *sizeof(int)));
+	CUDA_CHECK(cudaMemcpy(d_x, vector1.data(), 8 * sizeof(int), cudaMemcpyHostToDevice));
 
-    std::vector<int> test = {3,2,5,6,8,7,4,1};
-    std::cout << "Contenu du vecteur :";
-    for (int value : test) {
-        std::cout << " " << value;
-    }
-    std::cout << std::endl;
-    // std::vector<int> test_exclu = scan_exclu(test);
-    int* d_x;
-    cudaMalloc(&d_x, size_test * sizeof(int));
-    cudaMemcpy(d_x, test.data(), size_test * sizeof(int), cudaMemcpyHostToDevice);
-    scan1<<<blocks,threads_per_block>>>(d_x, N);
-    int *x = (int*) malloc(size_test * sizeof(int));
-    cudaMemcpy(x, d_x, size_test * sizeof(int), cudaMemcpyDeviceToHost);
+	dim3 nb_block = { 1, 1, 1};
+	dim3 nb_thread_per_block = { 4, 1, 1};
 
-    std::cout << "Contenu du vecteur :";
-    for (int n = 0; n < size_test; ++n){
-        std::cout << " " << x[n];
-    }
-    std::cout << std::endl;
-    free(x);
-    cudaFree(d_x);
+	scan1<<<nb_block, nb_thread_per_block>>>(d_x, 8);
+	
+	CUDA_CHECK(cudaMemcpy(x, d_x, 8 * sizeof(int), cudaMemcpyDeviceToHost));
+	for (int i = 0; i < 8 ; i++)
+	{
+		std::cout << x[i] << " ";
+	}
+	std::cout << std::endl;
+	cudaFree(d_x);
+	free(x);
+
     return 0;
 }
