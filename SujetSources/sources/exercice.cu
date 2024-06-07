@@ -73,7 +73,7 @@ float* generate1(int N, int M, int C)
     cudaMallocPitch(&img, &pitch, N * C * sizeof(float), M);
     dim3 block_dim(BLOCK_SIZE, BLOCK_SIZE, 1);
     dim3 grid_dim((N + 32 - 1) / 32, (M + 32 - 1) / 32, 1);
-    kernel<<<grid_dim, block_dim>>>(img, N,M,pitch);
+    kernel_generate1<<<grid_dim, block_dim>>>(img, N,M,pitch);
     float* res =(float*) malloc(M * C * N * sizeof(float));
     cudaMemcpy2D(res, C * N * sizeof(float), img, pitch, C * N * sizeof(float), M, cudaMemcpyDeviceToHost);
     cudaFree(img);
