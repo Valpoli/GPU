@@ -4,7 +4,7 @@ const float Xmax = 1.5;
 const float Xmin = -1.5;
 const float Ymax = 1;
 const float Ymin = -1;
-const int BLOCK_SIZE = 32;
+#define BLOCK_SIZE 32
 
 __device__ void map(int N, int M, int i, int j, float *a, float *b)
 {
