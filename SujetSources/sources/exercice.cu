@@ -4,7 +4,7 @@ const float Xmax = 1.5;
 const float Xmin = -1.5;
 const float Ymax = 1;
 const float Ymin = -1;
-const BLOCK_SIZE = 32;
+const int BLOCK_SIZE = 32;
 
 __device__ void map(int N, int M, int i, int j, float *a, float *b)
 {
@@ -73,7 +73,7 @@ float* generate1(int N, int M, int C)
     cudaMallocPitch(&img, &pitch, N * C * sizeof(float), M);
     dim3 block_dim(BLOCK_SIZE, BLOCK_SIZE, 1);
     dim3 grid_dim((N + 32 - 1) / 32, (M + 32 - 1) / 32, 1);
-    kernel_generate1<<<grid_dim, block_dim>>>(img, N,M,pitch);
+    kernel_generate1<<<grid_dim, block_dim>>>(N,M,C,pitch,img);
     float* res =(float*) malloc(M * C * N * sizeof(float));
     cudaMemcpy2D(res, C * N * sizeof(float), img, pitch, C * N * sizeof(float), M, cudaMemcpyDeviceToHost);
     cudaFree(img);
