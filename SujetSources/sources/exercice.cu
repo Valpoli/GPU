@@ -16,8 +16,8 @@ __device__ void map(int N, int M, int i, int j, float *a, float *b)
 
 __device__ bool is_converging(float a, float b)
 {
-    float zc = -0.5
-    float z_imc = 0.6
+    float zc = -0.5;
+    float z_imc = 0.6;
     float z0 = 0;
     float z_im0 = 0;
     float tempz = 0;
