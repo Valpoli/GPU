@@ -66,8 +66,8 @@ std::vector<float> matmul_cpu(const std::vector<float>& A, const std::vector<flo
 // return the 1D index of a row-major matrix of size (rows,cols) from indices (i,j) inside sub-matrix (bi,bj)
 __device__ int index2(int i, int j, int bi, int bj, int rows, int cols)
 {
-    int i_res = bi * rows + i;
-    int j_res = bj * cols + j;
+    int i_res = bi * BLOCK_SIZE + i;
+    int j_res = bj * BLOCK_SIZE + j;
     return (j_res + i_res * cols);
 }
 
@@ -88,6 +88,66 @@ __global__ void matmul1(float *d_A, float *d_B, float *d_C, int N, int M, int P)
         d_C[index1(i, j, N, P)] = result;
     }
 }
+
+//FAUX
+__global__ void matmul2(float *d_A, float *d_B, float *d_C, int N, int M, int P)
+{
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int bx = blockIdx.x;
+    int by = blockIdx.y;
+
+    // Number of sub-matrices
+    const int S = (N*P) / BLOCK_SIZE;
+
+    // Accumulated result for one element of C
+    float accu = 0.0f;
+
+    for (int s = 0; s < S; ++s) {
+        // Define shared memory for sub-matrices A and B
+        __shared__ float s_A[BLOCK_SIZE][BLOCK_SIZE];
+        __shared__ float s_B[BLOCK_SIZE][BLOCK_SIZE];
+
+        // Load sub-matrices A and B into shared memory
+        int row_A = by * BLOCK_SIZE + ty;
+        int col_A = s * BLOCK_SIZE + tx;
+        int row_B = s * BLOCK_SIZE + ty;
+        int col_B = bx * BLOCK_SIZE + tx;
+
+        if (row_A < N && col_A < M) {
+            s_A[ty][tx] = d_A[row_A * M + col_A];
+        } else {
+            s_A[ty][tx] = 0.0f; // Padding with zeros for out-of-bounds elements
+        }
+
+        if (row_B < M && col_B < P) {
+            s_B[ty][tx] = d_B[row_B * P + col_B];
+        } else {
+            s_B[ty][tx] = 0.0f; // Padding with zeros for out-of-bounds elements
+        }
+
+        // Synchronize threads within the block
+        __syncthreads();
+
+        // Compute partial sum in accu using s_A and s_B
+        for (int k = 0; k < BLOCK_SIZE; ++k) {
+            accu += s_A[ty][k] * s_B[k][tx];
+        }
+
+        // Synchronize threads again before loading the next sub-matrices
+        __syncthreads();
+    }
+
+    // Calculate the indices for the result matrix C
+    int row_C = by * BLOCK_SIZE + ty;
+    int col_C = bx * BLOCK_SIZE + tx;
+
+    // Write the accumulated result to the global memory
+    if (row_C < N && col_C < P) {
+        d_C[row_C * P + col_C] = accu;
+    }
+}
+
 
 
 int main()
