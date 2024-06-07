@@ -6,8 +6,7 @@ const float Ymax = 1;
 const float Ymin = -1;
 const int BLOCK_SIZE = 32;
 
-
-__device__ void map(int N, int M, int i, int j, float *a, float *b)
+__device__ void map(int N, int M, int i, int j, float *a, float *b);
 {
     int height = Xmax - Xmin;
     int width = Ymax - Ymin;
