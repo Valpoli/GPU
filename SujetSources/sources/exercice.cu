@@ -18,29 +18,20 @@ __device__ bool is_converging(float a, float b)
 {
     float zc = -0.5;
     float z_imc = 0.6;
-    float z0 = 0;
-    float z_im0 = 0;
-    float tempz = 0;
-    float tempz_im = 0;
-    float z = 0;
-    float z_im = 0;
+    float z = a;
+    float z_im = b;
     int i = 0;
-    while (i < 100)
-    {
-        tempz = z;
-        tempz_im = z_im;
-        z = z0*z0 - z_im0*z_im0 + zc + a;
-        z_im = 2*z0*z_im0 + z_imc + b;
-        z0 = tempz;
-        z_im0 = tempz_im;
+    while (i < 100) {
+        float tempz = z * z - z_im * z_im + zc;
+        float tempz_im = 2.0 * z * z_im + z_imc;
+        z = tempz;
+        z_im = tempz_im;
+        if (sqrt(z * z + z_im * z_im) >= 2.0) {
+            return false;
+        }
         i += 1;
     }
-    float absz = sqrt(z*z +z_im*z_im);
-    if (absz < 2)
-    {
-        return true;
-    }
-    return false;
+    return true;
 }
 
 __global__
@@ -55,11 +46,11 @@ void kernel_generate1(int N, int M, int C, int pitch, float* img)
         map(N,M,i,j,a,b);
         if (is_converging(*a,*b))
         {   
-            pixel[0] = 0;
+            pixel[0] = 1;
         }
         else
         {
-            pixel[0] = 1;
+            pixel[0] = 0;
         }
         free(a);
         free(b);
@@ -72,7 +63,7 @@ float* generate1(int N, int M, int C)
     float* img;
     cudaMallocPitch(&img, &pitch, N * C * sizeof(float), M);
     dim3 block_dim(BLOCK_SIZE, BLOCK_SIZE, 1);
-    dim3 grid_dim((N + BLOCK_SIZE - 1) / 32, (M + BLOCK_SIZE - 1) / BLOCK_SIZE, 1);
+    dim3 grid_dim((N + BLOCK_SIZE - 1) / BLOCK_SIZE, (M + BLOCK_SIZE - 1) / BLOCK_SIZE, 1);
     kernel_generate1<<<grid_dim, block_dim>>>(N,M,C,pitch,img);
     float* res =(float*) malloc(M * C * N * sizeof(float));
     cudaMemcpy2D(res, C * N * sizeof(float), img, pitch, C * N * sizeof(float), M, cudaMemcpyDeviceToHost);
