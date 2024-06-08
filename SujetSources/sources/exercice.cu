@@ -41,7 +41,7 @@ void kernel_generate1(int N, int M, int C, int pitch, float* img)
         float *pixel = get_ptr(img,i,j,C,pitch);
         float a, b;
         map(N, M, i, j, &a, &b);
-        if (is_converging(*a,*b))
+        if (is_converging(a,b))
         {   
             pixel[0] = 1;
         }
@@ -49,8 +49,6 @@ void kernel_generate1(int N, int M, int C, int pitch, float* img)
         {
             pixel[0] = 0;
         }
-        free(a);
-        free(b);
     }
 }
 
