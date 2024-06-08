@@ -8,29 +8,26 @@ const float Ymin = -1;
 
 __device__ void map(int N, int M, int i, int j, float *a, float *b)
 {
-    int height = Xmax - Xmin;
-    int width = Ymax - Ymin;
-    *a = Xmin + (float(i) / float(N - 1)) * height;
-    *b = Ymax - (float(j) / float(M - 1)) * width;
+    float height = Ymax - Ymin;
+    float width = Xmax - Xmin;
+    *a = Xmin + (float(j) / float(N - 1)) * width;
+    *b = Ymin + (float(i) / float(M - 1)) * height;
 }
 
 __device__ bool is_converging(float a, float b)
 {
-    printf("a: %f, b: %f\n", a, b);
     float zc = -0.5;
     float z_imc = 0.6;
     float z = a;
     float z_im = b;
-    int i = 0;
-    while (i <= 100) {
+    for (int i = 0; i < 100; ++i) {
         float tempz = z * z - z_im * z_im + zc;
         float tempz_im = 2.0 * z * z_im + z_imc;
         z = tempz;
         z_im = tempz_im;
-        if (sqrt(z * z + z_im * z_im) >= 2.0) {
+        if (z * z + z_im * z_im >= 4.0) {
             return false;
         }
-        i += 1;
     }
     return true;
 }
@@ -42,9 +39,8 @@ void kernel_generate1(int N, int M, int C, int pitch, float* img)
     int j = blockIdx.y * blockDim.y + threadIdx.y;
     if (i < N && j < M) {
         float *pixel = get_ptr(img,i,j,C,pitch);
-        float *a = (float*) malloc(sizeof(float));
-        float *b = (float*) malloc(sizeof(float));
-        map(N,M,i,j,a,b);
+        float a, b;
+        map(N, M, i, j, &a, &b);
         if (is_converging(*a,*b))
         {   
             pixel[0] = 1;
