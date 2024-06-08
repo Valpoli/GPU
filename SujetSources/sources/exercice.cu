@@ -16,12 +16,13 @@ __device__ void map(int N, int M, int i, int j, float *a, float *b)
 
 __device__ bool is_converging(float a, float b)
 {
+    printf("a: %f, b: %f\n", a, b);
     float zc = -0.5;
     float z_imc = 0.6;
     float z = a;
     float z_im = b;
     int i = 0;
-    while (i < 100) {
+    while (i <= 100) {
         float tempz = z * z - z_im * z_im + zc;
         float tempz_im = 2.0 * z * z_im + z_imc;
         z = tempz;
