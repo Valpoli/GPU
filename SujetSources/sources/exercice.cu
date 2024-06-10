@@ -8,10 +8,10 @@ const float Ymin = -1;
 
 __device__ void map(int N, int M, int i, int j, float *a, float *b)
 {
-    int height = Xmax - Xmin;
-    int width = Ymax - Ymin;
-    *a = Xmin + (float(i) / float(N - 1)) * height;
-    *b = Ymax - (float(j) / float(M - 1)) * width;
+    int height = Ymax - Ymin;
+    int width = Xmax - Xmin;
+    *a = Xmin + (float(i) / float(N - 1)) * width;
+    *b = Ymax - (float(j) / float(M - 1)) * height;
 }
 
 __device__ bool is_converging(float a, float b)
