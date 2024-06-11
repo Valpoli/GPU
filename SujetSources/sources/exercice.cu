@@ -8,8 +8,8 @@ const float Ymin = -1;
 
 __device__ void map(int N, int M, int i, int j, float *a, float *b)
 {
-    int height = Ymax - Ymin;
-    int width = Xmax - Xmin;
+    float height = Ymax - Ymin;
+    float width = Xmax - Xmin;
     *a = Xmin + (float(i) / float(N - 1)) * width;
     *b = Ymax - (float(j) / float(M - 1)) * height;
 }
@@ -40,20 +40,14 @@ void kernel_generate1(int N, int M, int C, int pitch, float* img)
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int j = blockIdx.y * blockDim.y + threadIdx.y;
     if (i < N && j < M) {
-        float *pixel = get_ptr(img,i,j,C,pitch);
-        float *a = (float*) malloc(sizeof(float));
-        float *b = (float*) malloc(sizeof(float));
-        map(N,M,i,j,a,b);
-        if (is_converging(*a,*b))
-        {   
+        float a, b;
+        map(N, M, i, j, &a, &b);
+        float *pixel = get_ptr(img, i, j, C, pitch);
+        if (is_converging(a, b)) {   
             pixel[0] = 1;
-        }
-        else
-        {
+        } else {
             pixel[0] = 0;
         }
-        free(a);
-        free(b);
     }
 }
 
