@@ -23,10 +23,10 @@ __device__ bool is_converging(float a, float b)
     int i = 0;
     while (i <= 100) {
         float tempz = z * z - z_im * z_im + zc;
-        float tempz_im = -2.0 * z * z_im + z_imc;
+        float tempz_im = 2.0 * z * z_im + z_imc;
         z = tempz;
         z_im = tempz_im;
-        if (sqrt(z*z +z_im*z_im)*sqrt(z*z +z_im*z_im) >= 2.0) {
+        if (sqrt(z*z +z_im*z_im)*sqrt(z*z +z_im*z_im) >= 4.0) {
             return false;
         }
         i += 1;
