@@ -16,7 +16,6 @@ __device__ void map(int N, int M, int i, int j, float *a, float *b)
 
 __device__ bool is_converging(float a, float b)
 {
-    printf("%f\n",a);
     float zc = -0.5;
     float z_imc = 0.6;
     float z = a;
@@ -27,7 +26,13 @@ __device__ bool is_converging(float a, float b)
         float tempz_im = 2.0 * z * z_im + z_imc;
         z = tempz;
         z_im = tempz_im;
-        if (z * z + z_im * z_im >= 2.0) {
+
+        // Vérifiez si a est entre 0 et 0.001 et b entre 0 et 0.01
+        if (a >= 0.0 && a <= 0.001 && b >= 0.0 && b <= 0.01) {
+            printf("Iteration %d: z = %f, z_im = %f\n", i, z, z_im);
+        }
+
+        if (z * z + z_im * z_im >= 4.0) { // Utilisez 4.0 au lieu de 2.0 pour la condition de divergence
             return false;
         }
         i += 1;
