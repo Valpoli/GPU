@@ -23,16 +23,10 @@ __device__ bool is_converging(float a, float b)
     int i = 0;
     while (i <= 100) {
         float tempz = z * z - z_im * z_im + zc;
-        float tempz_im = 2.0 * z * z_im + z_imc;
+        float tempz_im = -2.0 * z * z_im + z_imc;
         z = tempz;
         z_im = tempz_im;
-
-        // Vérifiez si a est entre 0 et 0.001 et b entre 0 et 0.01
-        if (a >= 0.0 && a <= 0.001 && b >= 0.0 && b <= 0.01) {
-            printf("Iteration %d: z = %f, z_im = %f\n", i, z, z_im);
-        }
-
-        if (z * z + z_im * z_im >= 4.0) { // Utilisez 4.0 au lieu de 2.0 pour la condition de divergence
+        if (z * z + z_im * z_im >= 2.0) {
             return false;
         }
         i += 1;
