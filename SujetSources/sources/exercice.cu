@@ -26,7 +26,7 @@ __device__ bool is_converging(float a, float b)
         float tempz_im = -2.0 * z * z_im + z_imc;
         z = tempz;
         z_im = tempz_im;
-        if (z * z + z_im * z_im >= 2.0) {
+        if (sqrt(z*z +z_im*z_im)*sqrt(z*z +z_im*z_im) >= 2.0) {
             return false;
         }
         i += 1;
@@ -43,7 +43,7 @@ void kernel_generate1(int N, int M, int C, int pitch, float* img)
         float a, b;
         map(N, M, i, j, &a, &b);
         float *pixel = get_ptr(img, i, j, C, pitch);
-        if (is_converging(a, b)) {   
+        if (is_converging(a, b)) {
             pixel[0] = 1;
         } else {
             pixel[0] = 0;
