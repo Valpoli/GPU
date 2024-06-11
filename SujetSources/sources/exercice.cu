@@ -26,6 +26,9 @@ __device__ bool is_converging(float a, float b)
         float tempz_im = 2.0 * z * z_im + z_imc;
         z = tempz;
         z_im = tempz_im;
+        if (a == 0 && b == 0) {
+            printf("Iteration %d: z = %f, z_im = %f\n", i, z, z_im);
+        }
         if (z * z + z_im * z_im >= 2.0) {
             return false;
         }
