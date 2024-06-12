@@ -119,12 +119,8 @@ __device__ void color_from_ratio(float ratio, float* r, float* g, float* b)
 {
     if (ratio >= 1.0f) {
         *r = 1.0f;
-        *g = 0.0f;
-        *b = 0.0f;
-    } else if (ratio <= 0.0f) {
-        *r = 0.0f;
-        *g = 0.0f;
-        *b = 1.0f;
+        *g = 1.0f;
+	*b = 1.0f;
     } else if (ratio <= 0.5f) {
         *r = 0.0f;
         *g = ratio * 2.0f;
