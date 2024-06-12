@@ -95,7 +95,7 @@ void kernel_generate2(int N, int M, int C, int pitch, float* img)
         float a, b;
         map(N, M, i, j, &a, &b);
         float *pixel = get_ptr(img, i, j, C, pitch);
-        pixel[0] = is_converging(a, b);
+        pixel[0] = is_converging_greyscale(a, b);
     }
 }
 
