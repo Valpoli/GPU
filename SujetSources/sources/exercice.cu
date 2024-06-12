@@ -72,7 +72,8 @@ __device__ bool is_converging_greyscale(float a, float b)
     float z = a;
     float z_im = b;
     int i = 0;
-    while (i <= 100) {
+    int iter = 100;
+    while (i <= iter) {
         float tempz = z * z - z_im * z_im + zc;
         float tempz_im = 2.0 * z * z_im + z_imc;
         z = tempz;
@@ -94,7 +95,7 @@ void kernel_generate2(int N, int M, int C, int pitch, float* img)
         float a, b;
         map(N, M, i, j, &a, &b);
         float *pixel = get_ptr(img, i, j, C, pitch);
-        pixel[0] = is_converging(a, b)
+        pixel[0] = is_converging(a, b);
     }
 }
 
