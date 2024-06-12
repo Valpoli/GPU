@@ -83,6 +83,8 @@ __device__ float is_converging_greyscale(float a, float b)
         }
         i += 1;
     }
+    if (i > 100)
+        i = 100;
     return (float)i/iter;
 }
 
