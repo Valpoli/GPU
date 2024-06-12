@@ -65,7 +65,7 @@ float* generate1(int N, int M, int C)
     return res;
 }
 
-__device__ bool is_converging_greyscale(float a, float b)
+__device__ float is_converging_greyscale(float a, float b)
 {
     float zc = -0.5;
     float z_imc = 0.6;
